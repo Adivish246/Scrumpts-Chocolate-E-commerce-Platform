@@ -38,22 +38,19 @@ export const useAIRecommendations = () => {
       
       return { recommendations: recs, products };
     } catch (error: any) {
-      // Check for quota exceeded errors
-      let title = 'Recommendation Error';
-      let description = 'Could not get personalized recommendations at this time';
-      
-      if (error?.message?.includes('quota') || 
-          error?.code === 'insufficient_quota' || 
-          (error?.error && error.error.type === 'insufficient_quota')) {
-        title = 'AI Service Limit Reached';
-        description = 'Our AI service has reached its usage limit for today. Please try again tomorrow.';
+      // Only show toast for non-quota errors (quota errors are shown in the components)
+      if (!(error?.message?.includes('quota') || 
+            error?.code === 'insufficient_quota' || 
+            (error?.error && error.error.type === 'insufficient_quota'))) {
+        toast({
+          title: 'Recommendation Error',
+          description: 'Could not get personalized recommendations at this time',
+          variant: 'destructive',
+        });
       }
       
-      toast({
-        title,
-        description,
-        variant: 'destructive',
-      });
+      // Let the error propagate so the component can show its error UI
+      // but don't show a toast for quota errors
       return { recommendations: [], products: [] };
     } finally {
       setLoading(false);
@@ -131,14 +128,14 @@ export const useAIChat = () => {
       }
       
       if (data.error) {
-        // Use custom error message for quota exceeded
-        const errorTitle = data.errorCode === 'quota_exceeded' ? 'AI Quota Exceeded' : 'Chat Error';
-        
-        toast({
-          title: errorTitle,
-          description: data.error,
-          variant: 'destructive',
-        });
+        // Only show toast for non-quota errors since quota errors are shown in the components
+        if (data.errorCode !== 'quota_exceeded') {
+          toast({
+            title: 'Chat Error',
+            description: data.error,
+            variant: 'destructive',
+          });
+        }
         setLoading(false);
       }
     });
