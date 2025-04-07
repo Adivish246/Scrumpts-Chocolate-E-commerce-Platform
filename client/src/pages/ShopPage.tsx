@@ -62,14 +62,14 @@ const ShopPage: React.FC = () => {
     // Apply filters
     let result = [...products];
 
-    // Category filter
+    // Category filter (case-insensitive)
     if (filters.category !== 'All') {
-      result = result.filter(p => p.category === filters.category);
+      result = result.filter(p => p.category.toLowerCase() === filters.category.toLowerCase());
     }
 
-    // Type filter
+    // Type filter (case-insensitive)
     if (filters.type !== 'All') {
-      result = result.filter(p => p.type === filters.type);
+      result = result.filter(p => p.type.toLowerCase() === filters.type.toLowerCase());
     }
 
     // Price range filter (prices stored in paise)
