@@ -5,16 +5,18 @@ import { AIChat } from "@/components/AIChat";
 import { useAuth } from "@/hooks/useAuth";
 import { Redirect } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
-import { UserCircle, Package, Heart, ShoppingBag, Settings, LogOut } from "lucide-react";
+import { UserCircle, Package, Heart, ShoppingBag, Settings, LogOut, AlertCircle, X } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { UserPreferences } from "@/lib/types";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 
 const ProfilePage: React.FC = () => {
   const { user, isAuthenticated, logout } = useAuth();
@@ -26,6 +28,11 @@ const ProfilePage: React.FC = () => {
     occasions: []
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [errorDialog, setErrorDialog] = useState<{open: boolean; title: string; message: string}>({
+    open: false,
+    title: '',
+    message: ''
+  });
 
   // Set page title
   useEffect(() => {
@@ -38,6 +45,11 @@ const ProfilePage: React.FC = () => {
       if (user?.uid) {
         try {
           const response = await apiRequest('GET', `/api/users/${user.uid}`);
+          
+          if (!response.ok) {
+            throw new Error(`Failed to load profile data: ${response.status} ${response.statusText}`);
+          }
+          
           const userData = await response.json();
           
           if (userData.preferences) {
@@ -45,6 +57,16 @@ const ProfilePage: React.FC = () => {
           }
         } catch (error) {
           console.error("Error loading user preferences:", error);
+          
+          const errorMessage = error instanceof Error 
+            ? error.message 
+            : 'Failed to load your profile data. Please try again later.';
+            
+          setErrorDialog({
+            open: true,
+            title: 'Profile Error',
+            message: errorMessage
+          });
         }
       }
     };
@@ -54,23 +76,40 @@ const ProfilePage: React.FC = () => {
 
   // Save preferences
   const savePreferences = async () => {
-    if (!user?.uid) return;
+    if (!user?.uid) {
+      setErrorDialog({
+        open: true,
+        title: 'Authentication Error',
+        message: 'You need to be logged in to save preferences. Please refresh the page and try again.'
+      });
+      return;
+    }
     
     setIsLoading(true);
     try {
-      await apiRequest('PATCH', `/api/users/${user.uid}/preferences`, {
+      const response = await apiRequest('PATCH', `/api/users/${user.uid}/preferences`, {
         preferences
       });
+      
+      if (!response.ok) {
+        throw new Error(`Failed to save preferences: ${response.status} ${response.statusText}`);
+      }
       
       toast({
         title: "Preferences Saved",
         description: "Your chocolate preferences have been updated.",
       });
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to save your preferences. Please try again.",
-        variant: "destructive",
+      console.error("Error saving preferences:", error);
+      
+      const errorMessage = error instanceof Error 
+        ? error.message 
+        : 'Failed to save your preferences. Please try again later.';
+        
+      setErrorDialog({
+        open: true,
+        title: 'Save Error',
+        message: errorMessage
       });
     } finally {
       setIsLoading(false);
@@ -313,8 +352,22 @@ const ProfilePage: React.FC = () => {
                   <Card>
                     <CardHeader>
                       <CardTitle>Account Details</CardTitle>
+                      <CardDescription>
+                        Manage your account information and connected services
+                      </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-6">
+                      {/* Error handling when user data isn't properly loaded */}
+                      {!user?.uid && (
+                        <Alert variant="destructive" className="mb-4">
+                          <AlertCircle className="h-4 w-4" />
+                          <AlertTitle>Authentication Error</AlertTitle>
+                          <AlertDescription>
+                            There was a problem accessing your account information. Please try logging out and back in.
+                          </AlertDescription>
+                        </Alert>
+                      )}
+                    
                       <div className="space-y-4">
                         <div>
                           <Label htmlFor="display-name" className="block mb-1">Display Name</Label>
@@ -322,9 +375,9 @@ const ProfilePage: React.FC = () => {
                             id="display-name" 
                             value={user?.displayName || ''} 
                             placeholder="Your name" 
-                            disabled={user?.providerData[0]?.providerId !== 'password'}
+                            disabled={!user?.uid || user?.providerData[0]?.providerId !== 'password'}
                           />
-                          {user?.providerData[0]?.providerId !== 'password' && (
+                          {user?.uid && user?.providerData[0]?.providerId !== 'password' && (
                             <p className="text-xs text-gray-500 mt-1">
                               Managed by your {user?.providerData[0]?.providerId} account
                             </p>
@@ -341,7 +394,7 @@ const ProfilePage: React.FC = () => {
                           />
                         </div>
                         
-                        {user?.providerData[0]?.providerId === 'password' && (
+                        {user?.uid && user?.providerData[0]?.providerId === 'password' && (
                           <div>
                             <Label htmlFor="password" className="block mb-1">Password</Label>
                             <Input 
@@ -447,6 +500,29 @@ const ProfilePage: React.FC = () => {
       </main>
       <Footer />
       <AIChat />
+      
+      {/* Error Dialog */}
+      <Dialog open={errorDialog.open} onOpenChange={(open) => setErrorDialog(prev => ({ ...prev, open }))}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-destructive">
+              <AlertCircle className="h-5 w-5" />
+              {errorDialog.title}
+            </DialogTitle>
+            <DialogDescription>
+              {errorDialog.message}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button 
+              onClick={() => setErrorDialog(prev => ({ ...prev, open: false }))}
+              className="bg-[hsl(var(--chocolate-dark))] hover:bg-[hsl(var(--chocolate-medium))]"
+            >
+              Okay
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

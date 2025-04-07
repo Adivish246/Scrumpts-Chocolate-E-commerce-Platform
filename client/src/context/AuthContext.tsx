@@ -30,23 +30,30 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Save user to database
   const saveUserToDatabase = async (user: User) => {
     try {
-      await apiRequest('POST', '/api/users', {
-        uid: user.uid,
-        email: user.email,
-        displayName: user.displayName,
-        photoURL: user.photoURL,
-        preferences: {}
-      });
-    } catch (error) {
-      // Don't throw if user already exists, this is expected
-      if (error instanceof Error && !error.message.includes('already exists')) {
-        toast({
-          title: 'Error saving user',
-          description: 'There was a problem saving your user information.',
-          variant: 'destructive',
+      // First, check if the user already exists
+      const checkResponse = await fetch(`/api/users/${user.uid}`);
+      
+      // If user doesn't exist (404), create them
+      if (checkResponse.status === 404) {
+        await apiRequest('POST', '/api/users', {
+          uid: user.uid,
+          email: user.email || `${user.uid}@example.com`, // Provide a fallback email
+          displayName: user.displayName || null,
+          photoURL: user.photoURL || null,
+          preferences: {}
         });
-        console.error('Error saving user to database:', error);
+      } else if (!checkResponse.ok) {
+        // Handle other error statuses
+        throw new Error(`Error checking user: ${checkResponse.status}`);
       }
+      // If user exists (200), do nothing
+    } catch (error) {
+      toast({
+        title: 'Error saving user',
+        description: 'There was a problem saving your user information.',
+        variant: 'destructive',
+      });
+      console.error('Error saving user to database:', error);
     }
   };
 
