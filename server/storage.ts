@@ -481,4 +481,251 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+import { db } from "./db";
+import { eq, and, desc, sql } from "drizzle-orm";
+
+// Database Storage implementation
+export class DatabaseStorage implements IStorage {
+  async getUser(id: number): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user || undefined;
+  }
+
+  async getUserByUid(uid: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.uid, uid));
+    return user || undefined;
+  }
+
+  async createUser(insertUser: InsertUser): Promise<User> {
+    // Handle potentially undefined fields by setting them to null explicitly
+    const userToInsert = {
+      ...insertUser,
+      displayName: insertUser.displayName || null,
+      photoURL: insertUser.photoURL || null,
+      preferences: insertUser.preferences || null
+    };
+    
+    const [user] = await db.insert(users).values(userToInsert).returning();
+    return user;
+  }
+
+  async updateUserPreferences(uid: string, preferences: any): Promise<User | undefined> {
+    const [user] = await db
+      .update(users)
+      .set({ preferences })
+      .where(eq(users.uid, uid))
+      .returning();
+    return user || undefined;
+  }
+
+  async getProducts(filter?: { category?: string; type?: string }): Promise<Product[]> {
+    let query = db.select().from(products);
+    
+    if (filter?.category) {
+      query = query.where(eq(products.category, filter.category));
+    }
+    
+    if (filter?.type) {
+      query = query.where(eq(products.type, filter.type));
+    }
+    
+    return query;
+  }
+
+  async getProductById(id: number): Promise<Product | undefined> {
+    const [product] = await db.select().from(products).where(eq(products.id, id));
+    return product || undefined;
+  }
+
+  async getFeaturedProducts(): Promise<Product[]> {
+    return db.select().from(products).where(eq(products.featured, true)).limit(4);
+  }
+
+  async getBestsellers(): Promise<Product[]> {
+    return db.select().from(products).where(eq(products.bestseller, true)).limit(4);
+  }
+
+  async createProduct(insertProduct: InsertProduct): Promise<Product> {
+    // Handle potentially undefined fields by setting them to null/default values explicitly
+    const productToInsert = {
+      ...insertProduct,
+      rating: insertProduct.rating ?? 5,
+      featured: insertProduct.featured ?? false,
+      bestseller: insertProduct.bestseller ?? false,
+      weightGrams: insertProduct.weightGrams ?? null,
+      flavors: insertProduct.flavors ?? null,
+      ingredients: insertProduct.ingredients ?? null,
+      shelfLife: insertProduct.shelfLife ?? null,
+      vegetarian: insertProduct.vegetarian ?? true,
+    };
+    
+    const [product] = await db.insert(products).values(productToInsert).returning();
+    return product;
+  }
+
+  async searchProducts(query: string): Promise<Product[]> {
+    return db
+      .select()
+      .from(products)
+      .where(
+        sql`to_tsvector('english', ${products.name} || ' ' || ${products.description}) @@ to_tsquery('english', ${query})`
+      );
+  }
+
+  async getCollections(): Promise<Collection[]> {
+    return db.select().from(collections);
+  }
+
+  async getCollectionById(id: number): Promise<Collection | undefined> {
+    const [collection] = await db.select().from(collections).where(eq(collections.id, id));
+    return collection || undefined;
+  }
+
+  async createCollection(insertCollection: InsertCollection): Promise<Collection> {
+    const [collection] = await db.insert(collections).values(insertCollection).returning();
+    return collection;
+  }
+
+  async getCartItems(userId: string): Promise<CartItem[]> {
+    return db.select().from(cartItems).where(eq(cartItems.userId, userId));
+  }
+
+  async getCartItemWithProduct(userId: string): Promise<(CartItem & { product: Product })[]> {
+    const items = await db
+      .select()
+      .from(cartItems)
+      .where(eq(cartItems.userId, userId));
+
+    // Get products for each cart item
+    const result: (CartItem & { product: Product })[] = [];
+    for (const item of items) {
+      const [product] = await db
+        .select()
+        .from(products)
+        .where(eq(products.id, item.productId));
+      
+      if (product) {
+        result.push({ ...item, product });
+      }
+    }
+
+    return result;
+  }
+
+  async addToCart(insertCartItem: InsertCartItem): Promise<CartItem> {
+    // Check if item is already in cart
+    const [existingItem] = await db
+      .select()
+      .from(cartItems)
+      .where(
+        and(
+          eq(cartItems.userId, insertCartItem.userId),
+          eq(cartItems.productId, insertCartItem.productId)
+        )
+      );
+
+    if (existingItem) {
+      // Update quantity
+      const newQuantity = existingItem.quantity + (insertCartItem.quantity || 1);
+      const [updated] = await db
+        .update(cartItems)
+        .set({ quantity: newQuantity })
+        .where(eq(cartItems.id, existingItem.id))
+        .returning();
+      return updated;
+    } else {
+      // Add new cart item
+      const itemToInsert = {
+        ...insertCartItem,
+        quantity: insertCartItem.quantity || 1
+      };
+      const [cartItem] = await db.insert(cartItems).values(itemToInsert).returning();
+      return cartItem;
+    }
+  }
+
+  async updateCartItemQuantity(id: number, quantity: number): Promise<CartItem | undefined> {
+    const [cartItem] = await db
+      .update(cartItems)
+      .set({ quantity })
+      .where(eq(cartItems.id, id))
+      .returning();
+    return cartItem || undefined;
+  }
+
+  async removeCartItem(id: number): Promise<boolean> {
+    const result = await db.delete(cartItems).where(eq(cartItems.id, id)).returning();
+    return result.length > 0;
+  }
+
+  async clearCart(userId: string): Promise<boolean> {
+    const result = await db.delete(cartItems).where(eq(cartItems.userId, userId));
+    return true;
+  }
+
+  async createOrder(insertOrder: InsertOrder, insertOrderItems: InsertOrderItem[]): Promise<Order> {
+    // Create the order with explicit status if not provided
+    const orderToInsert = {
+      ...insertOrder,
+      status: insertOrder.status || 'pending'
+    };
+    
+    const [order] = await db.insert(orders).values(orderToInsert).returning();
+
+    // Create order items
+    for (const item of insertOrderItems) {
+      await db.insert(orderItems).values({
+        ...item,
+        orderId: order.id
+      });
+    }
+
+    // Clear the cart
+    await this.clearCart(insertOrder.userId);
+
+    return order;
+  }
+
+  async getOrdersByUserId(userId: string): Promise<Order[]> {
+    return db
+      .select()
+      .from(orders)
+      .where(eq(orders.userId, userId))
+      .orderBy(desc(orders.createdAt));
+  }
+
+  async getOrderItems(orderId: number): Promise<OrderItem[]> {
+    return db
+      .select()
+      .from(orderItems)
+      .where(eq(orderItems.orderId, orderId));
+  }
+
+  async getChatHistory(userId: string): Promise<ChatHistory | undefined> {
+    const [history] = await db
+      .select()
+      .from(chatHistory)
+      .where(eq(chatHistory.userId, userId));
+    return history || undefined;
+  }
+
+  async saveChatHistory(insertChatHistory: InsertChatHistory): Promise<ChatHistory> {
+    const [history] = await db
+      .insert(chatHistory)
+      .values(insertChatHistory)
+      .returning();
+    return history;
+  }
+
+  async updateChatHistory(id: number, messages: Message[]): Promise<ChatHistory | undefined> {
+    const [updated] = await db
+      .update(chatHistory)
+      .set({ messages })
+      .where(eq(chatHistory.id, id))
+      .returning();
+    return updated || undefined;
+  }
+}
+
+// Use database storage instead of memory storage
+export const storage = new DatabaseStorage();
