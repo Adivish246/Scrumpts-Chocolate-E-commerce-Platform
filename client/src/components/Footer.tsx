@@ -58,23 +58,23 @@ export const Footer: React.FC = () => {
             <h4 className="font-semibold mb-4">Shop</h4>
             <ul className="space-y-2">
               <li>
-                <Link href="/shop">
-                  <a className="text-gray-300 hover:text-white">All Chocolates</a>
+                <Link href="/shop" className="text-gray-300 hover:text-white">
+                  All Chocolates
                 </Link>
               </li>
               <li>
-                <Link href="/collections">
-                  <a className="text-gray-300 hover:text-white">Gift Boxes</a>
+                <Link href="/collections" className="text-gray-300 hover:text-white">
+                  Gift Boxes
                 </Link>
               </li>
               <li>
-                <Link href="/collections">
-                  <a className="text-gray-300 hover:text-white">Collections</a>
+                <Link href="/collections" className="text-gray-300 hover:text-white">
+                  Collections
                 </Link>
               </li>
               <li>
-                <Link href="/corporate">
-                  <a className="text-gray-300 hover:text-white">Corporate Gifts</a>
+                <Link href="/corporate" className="text-gray-300 hover:text-white">
+                  Corporate Gifts
                 </Link>
               </li>
             </ul>
@@ -84,23 +84,23 @@ export const Footer: React.FC = () => {
             <h4 className="font-semibold mb-4">About</h4>
             <ul className="space-y-2">
               <li>
-                <Link href="/about">
-                  <a className="text-gray-300 hover:text-white">Our Story</a>
+                <Link href="/about" className="text-gray-300 hover:text-white">
+                  Our Story
                 </Link>
               </li>
               <li>
-                <Link href="/process">
-                  <a className="text-gray-300 hover:text-white">Chocolate Making</a>
+                <Link href="/process" className="text-gray-300 hover:text-white">
+                  Chocolate Making
                 </Link>
               </li>
               <li>
-                <Link href="/sustainability">
-                  <a className="text-gray-300 hover:text-white">Sustainability</a>
+                <Link href="/sustainability" className="text-gray-300 hover:text-white">
+                  Sustainability
                 </Link>
               </li>
               <li>
-                <Link href="/press">
-                  <a className="text-gray-300 hover:text-white">Press</a>
+                <Link href="/press" className="text-gray-300 hover:text-white">
+                  Press
                 </Link>
               </li>
             </ul>
@@ -110,23 +110,23 @@ export const Footer: React.FC = () => {
             <h4 className="font-semibold mb-4">Help</h4>
             <ul className="space-y-2">
               <li>
-                <Link href="/faq">
-                  <a className="text-gray-300 hover:text-white">FAQ</a>
+                <Link href="/faq" className="text-gray-300 hover:text-white">
+                  FAQ
                 </Link>
               </li>
               <li>
-                <Link href="/shipping">
-                  <a className="text-gray-300 hover:text-white">Shipping & Returns</a>
+                <Link href="/shipping" className="text-gray-300 hover:text-white">
+                  Shipping & Returns
                 </Link>
               </li>
               <li>
-                <Link href="/contact">
-                  <a className="text-gray-300 hover:text-white">Contact Us</a>
+                <Link href="/contact" className="text-gray-300 hover:text-white">
+                  Contact Us
                 </Link>
               </li>
               <li>
-                <Link href="/privacy">
-                  <a className="text-gray-300 hover:text-white">Privacy Policy</a>
+                <Link href="/privacy" className="text-gray-300 hover:text-white">
+                  Privacy Policy
                 </Link>
               </li>
             </ul>

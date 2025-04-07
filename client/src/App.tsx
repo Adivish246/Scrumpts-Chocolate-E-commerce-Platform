@@ -34,6 +34,25 @@ function Router() {
       <Route path="/collections" component={CollectionsPage} />
       <Route path="/about" component={AboutPage} />
       <Route path="/learn" component={LearnPage} />
+      {/* Redirect shortcut routes to profile sections */}
+      <Route path="/orders">
+        {() => {
+          window.location.href = '/profile/orders';
+          return null;
+        }}
+      </Route>
+      <Route path="/wishlist">
+        {() => {
+          window.location.href = '/profile/wishlist';
+          return null;
+        }}
+      </Route>
+      <Route path="/settings">
+        {() => {
+          window.location.href = '/profile/settings';
+          return null;
+        }}
+      </Route>
       <Route component={NotFound} />
     </Switch>
   );
