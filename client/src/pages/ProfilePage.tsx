@@ -3,7 +3,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { AIChat } from "@/components/AIChat";
 import { useAuth } from "@/hooks/useAuth";
-import { Redirect } from "wouter";
+import { Redirect, useLocation, Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -21,6 +21,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 const ProfilePage: React.FC = () => {
   const { user, isAuthenticated, logout } = useAuth();
   const { toast } = useToast();
+  const [location] = useLocation();
   const [preferences, setPreferences] = useState<UserPreferences>({
     favoriteTypes: [],
     dietaryRestrictions: [],
@@ -33,6 +34,15 @@ const ProfilePage: React.FC = () => {
     title: '',
     message: ''
   });
+  
+  // Determine active tab based on URL path
+  const getActiveTab = () => {
+    if (location.includes('/orders')) return 'orders';
+    if (location.includes('/wishlist')) return 'wishlist';
+    if (location.includes('/subscriptions')) return 'subscriptions';
+    if (location.includes('/settings')) return 'settings';
+    return 'preferences'; // default tab
+  };
 
   // Set page title
   useEffect(() => {
@@ -194,26 +204,51 @@ const ProfilePage: React.FC = () => {
                   </div>
 
                   <nav className="space-y-2">
-                    <Button variant="ghost" className="w-full justify-start">
-                      <UserCircle className="mr-2 h-5 w-5" />
-                      Profile
-                    </Button>
-                    <Button variant="ghost" className="w-full justify-start">
-                      <Package className="mr-2 h-5 w-5" />
-                      Orders
-                    </Button>
-                    <Button variant="ghost" className="w-full justify-start">
-                      <Heart className="mr-2 h-5 w-5" />
-                      Wishlist
-                    </Button>
-                    <Button variant="ghost" className="w-full justify-start">
-                      <ShoppingBag className="mr-2 h-5 w-5" />
-                      Subscriptions
-                    </Button>
-                    <Button variant="ghost" className="w-full justify-start">
-                      <Settings className="mr-2 h-5 w-5" />
-                      Settings
-                    </Button>
+                    <Link href="/profile">
+                      <Button 
+                        variant={!location.includes('/profile/') ? "default" : "ghost"} 
+                        className="w-full justify-start"
+                      >
+                        <UserCircle className="mr-2 h-5 w-5" />
+                        Profile
+                      </Button>
+                    </Link>
+                    <Link href="/profile/orders">
+                      <Button 
+                        variant={location.includes('/profile/orders') ? "default" : "ghost"} 
+                        className="w-full justify-start"
+                      >
+                        <Package className="mr-2 h-5 w-5" />
+                        Orders
+                      </Button>
+                    </Link>
+                    <Link href="/profile/wishlist">
+                      <Button 
+                        variant={location.includes('/profile/wishlist') ? "default" : "ghost"} 
+                        className="w-full justify-start"
+                      >
+                        <Heart className="mr-2 h-5 w-5" />
+                        Wishlist
+                      </Button>
+                    </Link>
+                    <Link href="/profile/subscriptions">
+                      <Button 
+                        variant={location.includes('/profile/subscriptions') ? "default" : "ghost"} 
+                        className="w-full justify-start"
+                      >
+                        <ShoppingBag className="mr-2 h-5 w-5" />
+                        Subscriptions
+                      </Button>
+                    </Link>
+                    <Link href="/profile/settings">
+                      <Button 
+                        variant={location.includes('/profile/settings') ? "default" : "ghost"} 
+                        className="w-full justify-start"
+                      >
+                        <Settings className="mr-2 h-5 w-5" />
+                        Settings
+                      </Button>
+                    </Link>
                     <Button 
                       variant="ghost" 
                       className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
@@ -229,11 +264,26 @@ const ProfilePage: React.FC = () => {
 
             {/* Right content - Tabs */}
             <div className="md:w-3/4">
-              <Tabs defaultValue="preferences">
+              <Tabs defaultValue={getActiveTab()}>
                 <TabsList className="mb-6">
-                  <TabsTrigger value="preferences">Chocolate Preferences</TabsTrigger>
-                  <TabsTrigger value="account">Account Details</TabsTrigger>
-                  <TabsTrigger value="orders">Order History</TabsTrigger>
+                  <TabsTrigger value="preferences" onClick={() => window.history.pushState(null, "", "/profile")}>
+                    Chocolate Preferences
+                  </TabsTrigger>
+                  <TabsTrigger value="account" onClick={() => window.history.pushState(null, "", "/profile")}>
+                    Account Details
+                  </TabsTrigger>
+                  <TabsTrigger value="orders" onClick={() => window.history.pushState(null, "", "/profile/orders")}>
+                    Order History
+                  </TabsTrigger>
+                  <TabsTrigger value="wishlist" onClick={() => window.history.pushState(null, "", "/profile/wishlist")}>
+                    Wishlist
+                  </TabsTrigger>
+                  <TabsTrigger value="subscriptions" onClick={() => window.history.pushState(null, "", "/profile/subscriptions")}>
+                    Subscriptions
+                  </TabsTrigger>
+                  <TabsTrigger value="settings" onClick={() => window.history.pushState(null, "", "/profile/settings")}>
+                    Settings
+                  </TabsTrigger>
                 </TabsList>
                 
                 {/* Preferences Tab */}
@@ -486,10 +536,124 @@ const ProfilePage: React.FC = () => {
                         <p className="text-gray-500 mb-4">
                           Looks like you haven't placed any orders with us yet.
                         </p>
+                        <Link href="/shop">
+                          <Button className="bg-[hsl(var(--chocolate-medium))] hover:bg-[hsl(var(--chocolate-dark))]">
+                            Start Shopping
+                          </Button>
+                        </Link>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+                
+                {/* Wishlist Tab */}
+                <TabsContent value="wishlist">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>My Wishlist</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-center py-8">
+                        <Heart className="mx-auto h-12 w-12 text-gray-400 mb-3" />
+                        <h3 className="text-lg font-medium mb-2">Your wishlist is empty</h3>
+                        <p className="text-gray-500 mb-4">
+                          Save your favorite chocolates for later by adding them to your wishlist.
+                        </p>
+                        <Link href="/shop">
+                          <Button className="bg-[hsl(var(--chocolate-medium))] hover:bg-[hsl(var(--chocolate-dark))]">
+                            Explore Chocolates
+                          </Button>
+                        </Link>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+                
+                {/* Subscriptions Tab */}
+                <TabsContent value="subscriptions">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>My Subscriptions</CardTitle>
+                      <CardDescription>
+                        Manage your chocolate subscription boxes and deliveries
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-center py-8">
+                        <ShoppingBag className="mx-auto h-12 w-12 text-gray-400 mb-3" />
+                        <h3 className="text-lg font-medium mb-2">No active subscriptions</h3>
+                        <p className="text-gray-500 mb-4">
+                          Subscribe to receive handcrafted chocolates delivered to your door monthly.
+                        </p>
                         <Button className="bg-[hsl(var(--chocolate-medium))] hover:bg-[hsl(var(--chocolate-dark))]">
-                          Start Shopping
+                          Explore Subscription Plans
                         </Button>
                       </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+                
+                {/* Settings Tab */}
+                <TabsContent value="settings">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Account Settings</CardTitle>
+                      <CardDescription>
+                        Manage your notification preferences and account settings
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                      <div className="space-y-4">
+                        <h3 className="text-lg font-medium">Email Notifications</h3>
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <Label htmlFor="marketing-emails" className="block mb-1">Marketing Emails</Label>
+                            <p className="text-sm text-gray-500">Receive emails about new products and promotions</p>
+                          </div>
+                          <Switch id="marketing-emails" defaultChecked />
+                        </div>
+                        
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <Label htmlFor="order-updates" className="block mb-1">Order Updates</Label>
+                            <p className="text-sm text-gray-500">Get notified about your order status</p>
+                          </div>
+                          <Switch id="order-updates" defaultChecked />
+                        </div>
+                        
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <Label htmlFor="event-invites" className="block mb-1">Event Invites</Label>
+                            <p className="text-sm text-gray-500">Receive invites to chocolate tasting events</p>
+                          </div>
+                          <Switch id="event-invites" defaultChecked />
+                        </div>
+                      </div>
+                      
+                      <div className="pt-4 border-t space-y-4">
+                        <h3 className="text-lg font-medium">Privacy Settings</h3>
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <Label htmlFor="data-collection" className="block mb-1">Data Collection</Label>
+                            <p className="text-sm text-gray-500">Allow us to collect usage data to improve services</p>
+                          </div>
+                          <Switch id="data-collection" defaultChecked />
+                        </div>
+                        
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <Label htmlFor="personalized-ads" className="block mb-1">Personalized Ads</Label>
+                            <p className="text-sm text-gray-500">Allow us to show you personalized ads</p>
+                          </div>
+                          <Switch id="personalized-ads" />
+                        </div>
+                      </div>
+                      
+                      <Button 
+                        className="bg-[hsl(var(--chocolate-dark))] hover:bg-[hsl(var(--chocolate-medium))] w-full md:w-auto mt-4"
+                      >
+                        Save Settings
+                      </Button>
                     </CardContent>
                   </Card>
                 </TabsContent>

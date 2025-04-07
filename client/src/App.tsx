@@ -26,6 +26,10 @@ function Router() {
       <Route path="/cart" component={CartPage} />
       <Route path="/auth/:type" component={AuthPage} />
       <Route path="/profile" component={ProfilePage} />
+      <Route path="/profile/orders" component={ProfilePage} />
+      <Route path="/profile/wishlist" component={ProfilePage} />
+      <Route path="/profile/subscriptions" component={ProfilePage} />
+      <Route path="/profile/settings" component={ProfilePage} />
       <Route path="/shop" component={ShopPage} />
       <Route path="/collections" component={CollectionsPage} />
       <Route path="/about" component={AboutPage} />
