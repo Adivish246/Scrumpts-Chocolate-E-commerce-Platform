@@ -7,7 +7,6 @@ import { AIRecommendations } from "@/components/AIRecommendations";
 import { ProductShowcase } from "@/components/ProductShowcase";
 import { ChocolateMakingProcess } from "@/components/ChocolateMakingProcess";
 import { Footer } from "@/components/Footer";
-import { AIChat } from "@/components/AIChat";
 import { staggerItems, staggeredItem } from "@/lib/animations";
 
 const HomePage: React.FC = () => {
@@ -53,7 +52,6 @@ const HomePage: React.FC = () => {
       </motion.div>
       
       <Footer />
-      <AIChat floatingAnimation={true} />
     </div>
   );
 };

@@ -157,40 +157,28 @@ export const AIChat: React.FC<AIChatProps> = ({ floatingAnimation = false }) => 
 
   return (
     <>
-      {/* Chat Button */}
-      <div className={`fixed ${isHomePage ? 'bottom-16 right-8' : 'bottom-6 right-6'} z-40 transition-all duration-500`}>
+      {/* Chat Button - Fixed and visible on all pages */}
+      <div className="fixed bottom-6 right-6 z-50 transition-all duration-500">
         <Button
           ref={buttonRef}
           onClick={toggleChat}
           className={`
-            ${isHomePage 
-              ? 'bg-gradient-to-br from-[hsl(var(--chocolate-accent))] to-[hsl(var(--chocolate-dark))]' 
-              : 'bg-[hsl(var(--chocolate-accent))]'
-            } 
+            bg-gradient-to-br from-[hsl(var(--chocolate-accent))] to-[hsl(var(--chocolate-dark))]
             hover:bg-opacity-90 text-white 
-            rounded-full ${isHomePage ? 'w-18 h-18' : 'w-16 h-16'} flex items-center justify-center 
-            ${isHomePage 
-              ? 'shadow-xl shadow-[rgba(198,160,61,0.3)]' 
-              : 'shadow-lg'
-            }
-            ${isHomePage && !isOpen ? 'animate-float' : ''}
+            rounded-full w-16 h-16 flex items-center justify-center 
+            shadow-xl shadow-[rgba(198,160,61,0.3)]
+            ${!isOpen ? 'animate-float' : ''}
             relative overflow-hidden before:absolute before:inset-0 before:rounded-full
-            ${isHomePage ? 'before:bg-gradient-to-r before:from-transparent before:via-white before:to-transparent before:opacity-20 before:animate-shimmer' : ''}
+            before:bg-gradient-to-r before:from-transparent before:via-white before:to-transparent before:opacity-20 before:animate-shimmer
           `}
         >
           {isOpen ? (
             <X className="h-6 w-6" />
           ) : (
-            <>
-              {isHomePage ? (
-                <div className="relative flex items-center justify-center">
-                  <MessageCircle className="h-7 w-7 text-white z-10 animate-glow-pulse" />
-                  <div className="absolute inset-0 bg-white opacity-0 rounded-full animate-ping-slow"></div>
-                </div>
-              ) : (
-                <MessageCircle className="h-6 w-6" />
-              )}
-            </>
+            <div className="relative flex items-center justify-center">
+              <MessageCircle className="h-7 w-7 text-white z-10 animate-glow-pulse" />
+              <div className="absolute inset-0 bg-white opacity-0 rounded-full animate-ping-slow"></div>
+            </div>
           )}
         </Button>
       </div>
@@ -199,38 +187,25 @@ export const AIChat: React.FC<AIChatProps> = ({ floatingAnimation = false }) => 
       {isOpen && (
         <div
           ref={chatContainerRef}
-          className={`fixed ${isHomePage ? 'bottom-36 right-8' : 'bottom-24 right-6'} z-40 w-full max-w-sm bg-white rounded-lg 
-            ${isHomePage 
-              ? 'border border-[hsl(var(--chocolate-accent))] shadow-2xl shadow-[rgba(198,160,61,0.15)]' 
-              : 'border shadow-xl'
-            } 
+          className="fixed bottom-24 right-6 z-40 w-full max-w-sm bg-white rounded-lg 
+            border border-[hsl(var(--chocolate-accent))] shadow-2xl shadow-[rgba(198,160,61,0.15)]
             overflow-hidden transition-all duration-500
-          `}
+          "
         >
           {/* Chat Header */}
-          <div className={`
-            ${isHomePage 
-              ? 'bg-gradient-to-r from-[hsl(var(--chocolate-dark))] via-[hsl(var(--chocolate-medium))] to-[hsl(var(--chocolate-dark))]' 
-              : 'bg-[hsl(var(--chocolate-dark))]'
-            } 
+          <div className="bg-gradient-to-r from-[hsl(var(--chocolate-dark))] via-[hsl(var(--chocolate-medium))] to-[hsl(var(--chocolate-dark))]
             text-white p-4 flex items-center justify-between relative overflow-hidden
-          `}>
-            {/* Background shine effect for home page */}
-            {isHomePage && (
-              <div className="absolute inset-0 opacity-30">
-                <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white to-transparent"></div>
-                <div className="absolute -left-[100%] top-0 bottom-0 w-[60%] rotate-[30deg] bg-gradient-to-r from-transparent via-white to-transparent animate-slide-right-slow"></div>
-              </div>
-            )}
+          ">
+            {/* Background shine effect */}
+            <div className="absolute inset-0 opacity-30">
+              <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white to-transparent"></div>
+              <div className="absolute -left-[100%] top-0 bottom-0 w-[60%] rotate-[30deg] bg-gradient-to-r from-transparent via-white to-transparent animate-slide-right-slow"></div>
+            </div>
             
             <div className="flex items-center relative z-10">
-              <div className={`
-                w-10 h-10 rounded-full flex items-center justify-center mr-3
-                ${isHomePage 
-                  ? 'bg-gradient-to-br from-[hsl(var(--chocolate-accent))] to-[hsl(var(--chocolate-light))] shadow-md shadow-[rgba(198,160,61,0.3)]' 
-                  : 'bg-[hsl(var(--chocolate-accent))]'
-                }
-              `}>
+              <div className="w-10 h-10 rounded-full flex items-center justify-center mr-3
+                bg-gradient-to-br from-[hsl(var(--chocolate-accent))] to-[hsl(var(--chocolate-light))] shadow-md shadow-[rgba(198,160,61,0.3)]"
+              >
                 <Bot className="h-5 w-5 text-white" />
               </div>
               <div>
@@ -249,7 +224,7 @@ export const AIChat: React.FC<AIChatProps> = ({ floatingAnimation = false }) => 
           </div>
           
           {/* Chat Messages */}
-          <div className={`h-80 overflow-y-auto p-4 ${isHomePage ? 'bg-gradient-to-b from-gray-50 to-white' : 'bg-gray-50'}`}>
+          <div className="h-80 overflow-y-auto p-4 bg-gradient-to-b from-gray-50 to-white">
             {/* Error Banner - smaller and less intrusive */}
             {apiError.show && (
               <div className={`mb-4 p-2 rounded-lg text-white ${apiError.isQuotaError ? 'bg-amber-600/70' : 'bg-red-500/70'}`}>
@@ -280,13 +255,9 @@ export const AIChat: React.FC<AIChatProps> = ({ floatingAnimation = false }) => 
                   <div
                     className={`
                       rounded-lg py-2 px-4 max-w-[85%] 
-                      ${msg.role === "user"
-                        ? isHomePage
-                          ? "bg-gradient-to-r from-[hsl(var(--chocolate-dark))] to-[hsl(var(--chocolate-medium))] text-white shadow-md"
-                          : "bg-[hsl(var(--chocolate-medium))] text-white"
-                        : isHomePage
-                          ? "bg-white border border-gray-200 shadow-sm"
-                          : "bg-white border"
+                      ${msg.role === "user" 
+                        ? "bg-gradient-to-r from-[hsl(var(--chocolate-dark))] to-[hsl(var(--chocolate-medium))] text-white shadow-md" 
+                        : "bg-white border border-gray-200 shadow-sm"
                       }
                     `}
                   >
@@ -312,38 +283,29 @@ export const AIChat: React.FC<AIChatProps> = ({ floatingAnimation = false }) => 
           </div>
           
           {/* Chat Input */}
-          <form onSubmit={handleSubmit} className={`p-4 border-t ${isHomePage ? 'bg-gray-50' : ''}`}>
-            <div className={`flex ${isHomePage ? 'shadow-sm rounded-md overflow-hidden' : ''}`}>
+          <form onSubmit={handleSubmit} className="p-4 border-t bg-gray-50">
+            <div className="flex shadow-sm rounded-md overflow-hidden">
               <Input
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
-                placeholder={isHomePage ? "Ask our chocolate expert..." : "Ask about chocolates..."}
-                className={`
-                  flex-1 border-r-0 rounded-r-none focus-visible:ring-0 focus-visible:ring-offset-0
-                  ${isHomePage ? 'border-[hsl(var(--chocolate-accent))] border-opacity-30 focus:border-opacity-70' : ''}
-                `}
+                placeholder="Ask our chocolate expert..."
+                className="flex-1 border-r-0 rounded-r-none focus-visible:ring-0 focus-visible:ring-offset-0
+                  border-[hsl(var(--chocolate-accent))] border-opacity-30 focus:border-opacity-70"
                 disabled={loading}
               />
               <Button
                 type="submit"
                 disabled={loading || !inputMessage.trim()}
-                className={`
-                  text-white rounded-l-none
-                  ${isHomePage 
-                    ? 'bg-gradient-to-r from-[hsl(var(--chocolate-accent))] to-[hsl(var(--chocolate-dark))] hover:opacity-95' 
-                    : 'bg-[hsl(var(--chocolate-accent))] hover:bg-opacity-90'
-                  }
-                `}
+                className="text-white rounded-l-none
+                  bg-gradient-to-r from-[hsl(var(--chocolate-accent))] to-[hsl(var(--chocolate-dark))] hover:opacity-95"
               >
                 <Send className="h-4 w-4" />
               </Button>
             </div>
             
-            {isHomePage && (
-              <p className="text-xs text-center mt-2 text-gray-500 italic">
-                Powered by AI to answer all your chocolate questions
-              </p>
-            )}
+            <p className="text-xs text-center mt-2 text-gray-500 italic">
+              Powered by AI to answer all your chocolate questions
+            </p>
           </form>
         </div>
       )}

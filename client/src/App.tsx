@@ -19,6 +19,7 @@ import { CartProvider } from "@/context/CartContext";
 import { useEffect } from "react";
 import { getAuth, getRedirectResult } from "firebase/auth";
 import { useToast } from "@/hooks/use-toast";
+import { AIChat } from "@/components/AIChat";
 
 function Router() {
   return (
@@ -98,6 +99,7 @@ function App() {
       <AuthProvider>
         <CartProvider>
           <Router />
+          <AIChat floatingAnimation={true} />
           <Toaster />
         </CartProvider>
       </AuthProvider>
