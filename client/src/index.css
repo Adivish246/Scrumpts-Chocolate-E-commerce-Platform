@@ -103,6 +103,20 @@
   .product-card:hover {
     @apply transform -translate-y-1 shadow-lg;
   }
+  
+  /* Page transition container */
+  .page-transition {
+    @apply min-h-screen w-full;
+    position: relative;
+    overflow-x: hidden;
+    isolation: isolate;
+    will-change: transform, opacity;
+  }
+  
+  /* Smooth scroll behavior for the entire site */
+  html {
+    scroll-behavior: smooth;
+  }
 }
 
 @layer utilities {
@@ -113,6 +127,35 @@
   .animate-slide-up {
     animation: slideUp 0.5s ease-out;
   }
+  
+  .animate-slide-in-left {
+    animation: slideInLeft 0.5s ease-out;
+  }
+  
+  .animate-slide-in-right {
+    animation: slideInRight 0.5s ease-out;
+  }
+  
+  .animate-pop-up {
+    animation: popUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  
+  .animate-chocolate-drip {
+    animation: chocolateDrip 0.7s cubic-bezier(0.33, 1, 0.68, 1);
+  }
+  
+  /* Staggered children animations */
+  .stagger-children > * {
+    opacity: 0;
+    animation: slideUp 0.5s ease-out forwards;
+  }
+  
+  .stagger-children > *:nth-child(1) { animation-delay: 0.1s; }
+  .stagger-children > *:nth-child(2) { animation-delay: 0.2s; }
+  .stagger-children > *:nth-child(3) { animation-delay: 0.3s; }
+  .stagger-children > *:nth-child(4) { animation-delay: 0.4s; }
+  .stagger-children > *:nth-child(5) { animation-delay: 0.5s; }
+  .stagger-children > *:nth-child(6) { animation-delay: 0.6s; }
 }
 
 @keyframes fadeIn {
@@ -131,6 +174,50 @@
   }
   to {
     transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    transform: translateX(-40px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(40px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes popUp {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes chocolateDrip {
+  from {
+    transform: translateY(-20px) scaleY(0.8);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scaleY(1);
     opacity: 1;
   }
 }

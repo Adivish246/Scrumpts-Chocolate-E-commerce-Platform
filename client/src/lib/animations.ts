@@ -1,144 +1,170 @@
-import { gsap } from "gsap";
+// Animation variants for various components
+import { Variants } from 'framer-motion';
 
-// Animation for fading in elements
-export const fadeIn = (element: HTMLElement, delay: number = 0, duration: number = 0.5) => {
-  gsap.fromTo(
-    element,
-    { opacity: 0 },
-    { opacity: 1, duration, delay, ease: "power2.out" }
-  );
-};
-
-// Animation for sliding up elements
-export const slideUp = (element: HTMLElement, delay: number = 0, duration: number = 0.5) => {
-  gsap.fromTo(
-    element,
-    { y: 20, opacity: 0 },
-    { y: 0, opacity: 1, duration, delay, ease: "power2.out" }
-  );
-};
-
-// Animation for staggered children elements
-export const staggerChildren = (
-  parent: HTMLElement,
-  childSelector: string,
-  delay: number = 0,
-  stagger: number = 0.1
-) => {
-  const children = parent.querySelectorAll(childSelector);
-  gsap.fromTo(
-    children,
-    { y: 20, opacity: 0 },
-    { 
-      y: 0, 
-      opacity: 1, 
-      duration: 0.5, 
-      delay, 
-      stagger,
-      ease: "power2.out" 
-    }
-  );
-};
-
-// Animation for reveal on scroll
-export const revealOnScroll = (
-  elements: NodeListOf<HTMLElement> | HTMLElement[],
-  threshold: number = 0.1
-) => {
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          gsap.fromTo(
-            entry.target,
-            { y: 30, opacity: 0 },
-            { y: 0, opacity: 1, duration: 0.7, ease: "power2.out" }
-          );
-          observer.unobserve(entry.target);
-        }
-      });
-    },
-    { threshold }
-  );
-
-  elements.forEach((el) => observer.observe(el));
-  
-  return observer;
-};
-
-// Animation for product card hover effect
-export const productCardHover = (card: HTMLElement) => {
-  const tl = gsap.timeline({ paused: true });
-  
-  tl.to(card, {
-    y: -5,
-    boxShadow: "0 10px 25px -5px rgba(45, 30, 18, 0.1)",
-    duration: 0.3,
-    ease: "power2.out"
-  });
-  
-  card.addEventListener("mouseenter", () => tl.play());
-  card.addEventListener("mouseleave", () => tl.reverse());
-  
-  return () => {
-    card.removeEventListener("mouseenter", () => tl.play());
-    card.removeEventListener("mouseleave", () => tl.reverse());
-  };
-};
-
-// Animation for page transitions
-export const pageTransition = {
+// Fade in animation
+export const fadeIn: Variants = {
   initial: { opacity: 0 },
   animate: { 
     opacity: 1,
-    transition: { duration: 0.5, ease: [0.43, 0.13, 0.23, 0.96] }
+    transition: { 
+      duration: 0.6,
+      ease: 'easeInOut'
+    }
   },
   exit: { 
     opacity: 0,
-    transition: { duration: 0.5, ease: [0.43, 0.13, 0.23, 0.96] }
+    transition: { 
+      duration: 0.4,
+      ease: 'easeInOut'
+    }
   }
 };
 
-// Animation for button click
-export const buttonClick = (button: HTMLElement) => {
-  button.addEventListener("click", () => {
-    gsap.to(button, {
-      scale: 0.95,
-      duration: 0.1,
-      onComplete: () => {
-        gsap.to(button, {
-          scale: 1,
-          duration: 0.1
-        });
-      }
-    });
-  });
-  
-  return () => {
-    button.removeEventListener("click", () => {});
-  };
-};
-
-// Animation for showing modal
-export const showModal = (modal: HTMLElement, backdrop: HTMLElement) => {
-  gsap.set([modal, backdrop], { display: "block", opacity: 0 });
-  gsap.to(backdrop, { opacity: 1, duration: 0.3 });
-  gsap.fromTo(
-    modal,
-    { y: -20, opacity: 0 },
-    { y: 0, opacity: 1, duration: 0.4, delay: 0.1 }
-  );
-};
-
-// Animation for hiding modal
-export const hideModal = (modal: HTMLElement, backdrop: HTMLElement) => {
-  gsap.to(modal, { 
-    y: -20, 
-    opacity: 0, 
-    duration: 0.3,
-    onComplete: () => {
-      gsap.set([modal, backdrop], { display: "none" });
+// Slide up animation
+export const slideUp: Variants = {
+  initial: { opacity: 0, y: 30 },
+  animate: { 
+    opacity: 1, 
+    y: 0,
+    transition: { 
+      duration: 0.5,
+      ease: [0.25, 0.1, 0.25, 1.0] 
     }
-  });
-  gsap.to(backdrop, { opacity: 0, duration: 0.3 });
+  },
+  exit: { 
+    opacity: 0, 
+    y: 30,
+    transition: { 
+      duration: 0.3,
+      ease: [0.25, 0.1, 0.25, 1.0] 
+    }
+  }
+};
+
+// Slide in from left
+export const slideInLeft: Variants = {
+  initial: { opacity: 0, x: -40 },
+  animate: { 
+    opacity: 1, 
+    x: 0,
+    transition: { 
+      duration: 0.5,
+      ease: [0.25, 0.1, 0.25, 1.0] 
+    }
+  },
+  exit: { 
+    opacity: 0, 
+    x: -40,
+    transition: { 
+      duration: 0.3,
+      ease: [0.25, 0.1, 0.25, 1.0] 
+    }
+  }
+};
+
+// Slide in from right
+export const slideInRight: Variants = {
+  initial: { opacity: 0, x: 40 },
+  animate: { 
+    opacity: 1, 
+    x: 0,
+    transition: { 
+      duration: 0.5,
+      ease: [0.25, 0.1, 0.25, 1.0] 
+    }
+  },
+  exit: { 
+    opacity: 0, 
+    x: 40,
+    transition: { 
+      duration: 0.3,
+      ease: [0.25, 0.1, 0.25, 1.0] 
+    }
+  }
+};
+
+// Pop up animation
+export const popUp: Variants = {
+  initial: { opacity: 0, scale: 0.9 },
+  animate: { 
+    opacity: 1, 
+    scale: 1,
+    transition: { 
+      duration: 0.4,
+      ease: [0.175, 0.885, 0.32, 1.275] // Custom easing for pop effect
+    }
+  },
+  exit: { 
+    opacity: 0, 
+    scale: 0.9,
+    transition: { 
+      duration: 0.3,
+      ease: 'easeInOut'
+    }
+  }
+};
+
+// Staggered animation for lists
+export const staggerItems = {
+  initial: { opacity: 0 },
+  animate: { 
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.08
+    }
+  },
+  exit: { 
+    opacity: 0,
+    transition: {
+      staggerChildren: 0.05,
+      staggerDirection: -1
+    }
+  }
+};
+
+// For individual staggered items
+export const staggeredItem: Variants = {
+  initial: { opacity: 0, y: 15 },
+  animate: { 
+    opacity: 1, 
+    y: 0,
+    transition: { 
+      duration: 0.4,
+      ease: 'easeOut'
+    }
+  },
+  exit: { 
+    opacity: 0, 
+    y: 15,
+    transition: { 
+      duration: 0.3,
+      ease: 'easeIn'
+    }
+  }
+};
+
+// Chocolate-themed animation (for special elements)
+export const chocolateDrip: Variants = {
+  initial: { 
+    opacity: 0, 
+    y: -20,
+    scaleY: 0.8 
+  },
+  animate: { 
+    opacity: 1, 
+    y: 0,
+    scaleY: 1,
+    transition: { 
+      duration: 0.7,
+      ease: [0.33, 1, 0.68, 1] // Custom ease that feels like dripping chocolate
+    }
+  },
+  exit: { 
+    opacity: 0, 
+    y: 20,
+    transition: { 
+      duration: 0.4,
+      ease: 'easeIn'
+    }
+  }
 };

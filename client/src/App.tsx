@@ -12,6 +12,7 @@ import ShopPage from "@/pages/ShopPage";
 import CollectionsPage from "@/pages/CollectionsPage";
 import AboutPage from "@/pages/AboutPage";
 import LearnPage from "@/pages/LearnPage";
+import { PageTransition } from "@/components/PageTransition";
 import { AuthProvider } from "@/context/AuthContext";
 import { CartProvider } from "@/context/CartContext";
 import { useEffect } from "react";
@@ -20,41 +21,43 @@ import { useToast } from "@/hooks/use-toast";
 
 function Router() {
   return (
-    <Switch>
-      <Route path="/" component={HomePage} />
-      <Route path="/product/:id" component={ProductPage} />
-      <Route path="/cart" component={CartPage} />
-      <Route path="/auth/:type" component={AuthPage} />
-      <Route path="/profile" component={ProfilePage} />
-      <Route path="/profile/orders" component={ProfilePage} />
-      <Route path="/profile/wishlist" component={ProfilePage} />
-      <Route path="/profile/subscriptions" component={ProfilePage} />
-      <Route path="/profile/settings" component={ProfilePage} />
-      <Route path="/shop" component={ShopPage} />
-      <Route path="/collections" component={CollectionsPage} />
-      <Route path="/about" component={AboutPage} />
-      <Route path="/learn" component={LearnPage} />
-      {/* Redirect shortcut routes to profile sections */}
-      <Route path="/orders">
-        {() => {
-          window.location.href = '/profile/orders';
-          return null;
-        }}
-      </Route>
-      <Route path="/wishlist">
-        {() => {
-          window.location.href = '/profile/wishlist';
-          return null;
-        }}
-      </Route>
-      <Route path="/settings">
-        {() => {
-          window.location.href = '/profile/settings';
-          return null;
-        }}
-      </Route>
-      <Route component={NotFound} />
-    </Switch>
+    <PageTransition>
+      <Switch>
+        <Route path="/" component={HomePage} />
+        <Route path="/product/:id" component={ProductPage} />
+        <Route path="/cart" component={CartPage} />
+        <Route path="/auth/:type" component={AuthPage} />
+        <Route path="/profile" component={ProfilePage} />
+        <Route path="/profile/orders" component={ProfilePage} />
+        <Route path="/profile/wishlist" component={ProfilePage} />
+        <Route path="/profile/subscriptions" component={ProfilePage} />
+        <Route path="/profile/settings" component={ProfilePage} />
+        <Route path="/shop" component={ShopPage} />
+        <Route path="/collections" component={CollectionsPage} />
+        <Route path="/about" component={AboutPage} />
+        <Route path="/learn" component={LearnPage} />
+        {/* Redirect shortcut routes to profile sections */}
+        <Route path="/orders">
+          {() => {
+            window.location.href = '/profile/orders';
+            return null;
+          }}
+        </Route>
+        <Route path="/wishlist">
+          {() => {
+            window.location.href = '/profile/wishlist';
+            return null;
+          }}
+        </Route>
+        <Route path="/settings">
+          {() => {
+            window.location.href = '/profile/settings';
+            return null;
+          }}
+        </Route>
+        <Route component={NotFound} />
+      </Switch>
+    </PageTransition>
   );
 }
 
