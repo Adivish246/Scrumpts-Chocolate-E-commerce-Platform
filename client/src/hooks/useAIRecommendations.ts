@@ -37,10 +37,21 @@ export const useAIRecommendations = () => {
       setRecommendedProducts(products);
       
       return { recommendations: recs, products };
-    } catch (error) {
+    } catch (error: any) {
+      // Check for quota exceeded errors
+      let title = 'Recommendation Error';
+      let description = 'Could not get personalized recommendations at this time';
+      
+      if (error?.message?.includes('quota') || 
+          error?.code === 'insufficient_quota' || 
+          (error?.error && error.error.type === 'insufficient_quota')) {
+        title = 'AI Service Limit Reached';
+        description = 'Our AI service has reached its usage limit for today. Please try again tomorrow.';
+      }
+      
       toast({
-        title: 'Recommendation Error',
-        description: 'Could not get personalized recommendations at this time',
+        title,
+        description,
         variant: 'destructive',
       });
       return { recommendations: [], products: [] };
@@ -120,8 +131,11 @@ export const useAIChat = () => {
       }
       
       if (data.error) {
+        // Use custom error message for quota exceeded
+        const errorTitle = data.errorCode === 'quota_exceeded' ? 'AI Quota Exceeded' : 'Chat Error';
+        
         toast({
-          title: 'Chat Error',
+          title: errorTitle,
           description: data.error,
           variant: 'destructive',
         });

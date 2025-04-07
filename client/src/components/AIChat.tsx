@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useAIChat } from "@/hooks/useAIRecommendations";
 import { useAuth } from "@/hooks/useAuth";
 import { 
+  AlertTriangle,
   MessageCircle, 
   X, 
   Send, 
@@ -19,6 +20,11 @@ export const AIChat: React.FC = () => {
   const [inputMessage, setInputMessage] = useState("");
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authType, setAuthType] = useState<'login' | 'signup'>('login');
+  const [apiError, setApiError] = useState<{show: boolean, message: string, isQuotaError: boolean}>({
+    show: false,
+    message: '',
+    isQuotaError: false
+  });
   
   const { messages, loading, sendMessage } = useAIChat();
   const { isAuthenticated } = useAuth();
@@ -55,6 +61,30 @@ export const AIChat: React.FC = () => {
         tl.kill();
       };
     }
+  }, []);
+  
+  // Listen for error messages from WebSocket client
+  useEffect(() => {
+    // Setup event listener for custom event from chat client
+    const handleChatError = (event: CustomEvent) => {
+      const { error, errorCode } = event.detail;
+      
+      if (error) {
+        setApiError({
+          show: true,
+          message: error,
+          isQuotaError: errorCode === 'quota_exceeded'
+        });
+      }
+    };
+    
+    // Add event listener
+    document.addEventListener('chat:error' as any, handleChatError as EventListener);
+    
+    // Cleanup
+    return () => {
+      document.removeEventListener('chat:error' as any, handleChatError as EventListener);
+    };
   }, []);
 
   // Handle chat toggle
@@ -133,6 +163,27 @@ export const AIChat: React.FC = () => {
           
           {/* Chat Messages */}
           <div className="h-80 overflow-y-auto p-4 bg-gray-50">
+            {/* Error Banner */}
+            {apiError.show && (
+              <div className={`mb-4 p-3 rounded-lg text-white ${apiError.isQuotaError ? 'bg-amber-600' : 'bg-red-500'}`}>
+                <div className="flex items-start">
+                  <AlertTriangle className="h-5 w-5 mr-2 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-medium text-sm">{apiError.isQuotaError ? 'AI Service Limit Reached' : 'Service Unavailable'}</p>
+                    <p className="text-xs mt-1">{apiError.message}</p>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="ml-auto -mr-2 -mt-2 text-white hover:bg-white hover:bg-opacity-20"
+                    onClick={() => setApiError({...apiError, show: false})}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            )}
+            
             <div className="space-y-4">
               {messages.map((msg, index) => (
                 <div

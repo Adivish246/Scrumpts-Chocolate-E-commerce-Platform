@@ -3,7 +3,7 @@ import { useAIChat } from '@/hooks/useAIRecommendations';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Loader2, Send, Bot, Smile, Gift, ThumbsUp } from 'lucide-react';
+import { AlertTriangle, Loader2, Send, Bot, Smile, Gift, ThumbsUp, X } from 'lucide-react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { AuthModals } from './AuthModals';
@@ -18,6 +18,11 @@ export const AIRecommendations: React.FC = () => {
   const [inputMessage, setInputMessage] = useState('');
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authType, setAuthType] = useState<'login' | 'signup'>('login');
+  const [apiError, setApiError] = useState<{show: boolean, message: string, isQuotaError: boolean}>({
+    show: false,
+    message: '',
+    isQuotaError: false
+  });
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const sectionRef = useRef<HTMLElement>(null);
@@ -30,6 +35,30 @@ export const AIRecommendations: React.FC = () => {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   }, [messages]);
+
+  // Listen for error messages from WebSocket client
+  useEffect(() => {
+    // Setup event listener for custom event from chat client
+    const handleChatError = (event: CustomEvent) => {
+      const { error, errorCode } = event.detail;
+      
+      if (error) {
+        setApiError({
+          show: true,
+          message: error,
+          isQuotaError: errorCode === 'quota_exceeded'
+        });
+      }
+    };
+    
+    // Add event listener
+    document.addEventListener('chat:error' as any, handleChatError as EventListener);
+    
+    // Cleanup
+    return () => {
+      document.removeEventListener('chat:error' as any, handleChatError as EventListener);
+    };
+  }, []);
 
   // GSAP animations
   useEffect(() => {
@@ -135,6 +164,27 @@ export const AIRecommendations: React.FC = () => {
                 </div>
                 
                 <div className="space-y-4 mb-4 h-64 overflow-y-auto p-2">
+                  {/* Error Banner */}
+                  {apiError.show && (
+                    <div className={`mb-4 p-3 rounded-lg text-white ${apiError.isQuotaError ? 'bg-amber-600' : 'bg-red-500'}`}>
+                      <div className="flex items-start">
+                        <AlertTriangle className="h-5 w-5 mr-2 flex-shrink-0 mt-0.5" />
+                        <div>
+                          <p className="font-medium text-sm">{apiError.isQuotaError ? 'AI Service Limit Reached' : 'Service Unavailable'}</p>
+                          <p className="text-xs mt-1">{apiError.message}</p>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="ml-auto -mr-2 -mt-2 text-white hover:bg-white hover:bg-opacity-20"
+                          onClick={() => setApiError({...apiError, show: false})}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                  
                   {messages.map((msg, index) => (
                     <div 
                       key={index} 

@@ -67,6 +67,21 @@ export class ChatClient {
       try {
         console.log('ChatClient: Message received');
         const data = JSON.parse(event.data);
+        
+        // Check for error messages and dispatch custom events
+        if (data.error) {
+          console.warn('ChatClient: Error received from server:', data.error);
+          
+          // Dispatch custom event for error messages
+          const errorEvent = new CustomEvent('chat:error', {
+            detail: {
+              error: data.error,
+              errorCode: data.errorCode || 'unknown_error'
+            }
+          });
+          document.dispatchEvent(errorEvent);
+        }
+        
         if (this.messageHandler) {
           this.messageHandler(data);
         }

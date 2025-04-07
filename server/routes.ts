@@ -416,13 +416,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }));
           
           console.log(`Sent response to user ${userId}`);
-        } catch (aiError) {
-          console.error("OpenAI API error:", aiError);
+        } catch (error) {
+          console.error("OpenAI API error:", error);
+          
+          let errorMessage = "I'm sorry, I'm having trouble connecting to my knowledge base right now. Please try again in a moment.";
+          let errorCode = "service_unavailable";
+          
+          // Check for quota exceeded error
+          const aiError = error as any;
+          if (aiError && 
+              (aiError.code === 'insufficient_quota' || 
+              (aiError.message && typeof aiError.message === 'string' && aiError.message.includes('quota')) ||
+              (aiError.error && aiError.error.type === 'insufficient_quota'))) {
+            errorMessage = "I'm sorry, our AI service has reached its usage limit for today. Please try again tomorrow.";
+            errorCode = "quota_exceeded";
+          }
           
           // Fallback response if OpenAI fails
           const fallbackMessage = {
             role: "assistant" as const,
-            content: "I'm sorry, I'm having trouble connecting to my knowledge base right now. Please try again in a moment.",
+            content: errorMessage,
             timestamp: Date.now()
           };
           
@@ -431,7 +444,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           ws.send(JSON.stringify({
             message: fallbackMessage,
             history: messages,
-            error: "AI service temporarily unavailable"
+            error: "AI service temporarily unavailable",
+            errorCode: errorCode
           }));
         }
       } catch (error) {
