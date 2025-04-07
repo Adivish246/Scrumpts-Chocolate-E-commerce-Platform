@@ -53,7 +53,7 @@ const HomePage: React.FC = () => {
       </motion.div>
       
       <Footer />
-      <AIChat />
+      <AIChat floatingAnimation={true} />
     </div>
   );
 };

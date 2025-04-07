@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useAIChat } from "@/hooks/useAIRecommendations";
 import { useAuth } from "@/hooks/useAuth";
+import { useLocation } from "wouter";
 import { 
   AlertTriangle,
   MessageCircle, 
@@ -15,7 +16,13 @@ import { gsap } from "gsap";
 import { formatDateTime } from "@/lib/types";
 import { AuthModals } from "./AuthModals";
 
-export const AIChat: React.FC = () => {
+interface AIChatProps {
+  floatingAnimation?: boolean;
+}
+
+export const AIChat: React.FC<AIChatProps> = ({ floatingAnimation = false }) => {
+  const [location] = useLocation();
+  const isHomePage = location === "/" || floatingAnimation;
   const [isOpen, setIsOpen] = useState(false);
   const [inputMessage, setInputMessage] = useState("");
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
@@ -40,9 +47,9 @@ export const AIChat: React.FC = () => {
     }
   }, [messages, isOpen]);
   
-  // Add button pulse animation
+  // Add button pulse animation for non-homepage chat button
   useEffect(() => {
-    if (buttonRef.current) {
+    if (buttonRef.current && !isHomePage) {
       const tl = gsap.timeline({ repeat: -1 });
       tl.to(buttonRef.current, { 
         scale: 1.1, 
@@ -61,7 +68,7 @@ export const AIChat: React.FC = () => {
         tl.kill();
       };
     }
-  }, []);
+  }, [isHomePage]);
   
   // Listen for error messages from WebSocket client
   useEffect(() => {
@@ -117,19 +124,73 @@ export const AIChat: React.FC = () => {
     }
   };
 
+  // Use different animation for home page's chat button
+  useEffect(() => {
+    if (buttonRef.current && isHomePage && !isOpen) {
+      // Clear any existing animations
+      gsap.killTweensOf(buttonRef.current);
+      
+      // Create floating animation for home page
+      const floatTl = gsap.timeline({ repeat: -1, yoyo: true });
+      
+      floatTl
+        .to(buttonRef.current, {
+          y: -15,
+          duration: 2,
+          ease: "sine.inOut",
+          boxShadow: "0 15px 25px rgba(198, 160, 61, 0.4)",
+          scale: 1.05
+        })
+        .to(buttonRef.current, {
+          y: 0,
+          duration: 2, 
+          ease: "sine.inOut",
+          boxShadow: "0 5px 15px rgba(198, 160, 61, 0.2)",
+          scale: 1
+        });
+      
+      return () => {
+        floatTl.kill();
+      };
+    }
+  }, [isHomePage, isOpen]);
+
   return (
     <>
       {/* Chat Button */}
-      <div className="fixed bottom-6 right-6 z-40">
+      <div className={`fixed ${isHomePage ? 'bottom-16 right-8' : 'bottom-6 right-6'} z-40 transition-all duration-500`}>
         <Button
           ref={buttonRef}
           onClick={toggleChat}
-          className="bg-[hsl(var(--chocolate-accent))] hover:bg-opacity-90 text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg"
+          className={`
+            ${isHomePage 
+              ? 'bg-gradient-to-br from-[hsl(var(--chocolate-accent))] to-[hsl(var(--chocolate-dark))]' 
+              : 'bg-[hsl(var(--chocolate-accent))]'
+            } 
+            hover:bg-opacity-90 text-white 
+            rounded-full ${isHomePage ? 'w-18 h-18' : 'w-16 h-16'} flex items-center justify-center 
+            ${isHomePage 
+              ? 'shadow-xl shadow-[rgba(198,160,61,0.3)]' 
+              : 'shadow-lg'
+            }
+            ${isHomePage && !isOpen ? 'animate-float' : ''}
+            relative overflow-hidden before:absolute before:inset-0 before:rounded-full
+            ${isHomePage ? 'before:bg-gradient-to-r before:from-transparent before:via-white before:to-transparent before:opacity-20 before:animate-shimmer' : ''}
+          `}
         >
           {isOpen ? (
             <X className="h-6 w-6" />
           ) : (
-            <MessageCircle className="h-6 w-6" />
+            <>
+              {isHomePage ? (
+                <div className="relative flex items-center justify-center">
+                  <MessageCircle className="h-7 w-7 text-white z-10 animate-glow-pulse" />
+                  <div className="absolute inset-0 bg-white opacity-0 rounded-full animate-ping-slow"></div>
+                </div>
+              ) : (
+                <MessageCircle className="h-6 w-6" />
+              )}
+            </>
           )}
         </Button>
       </div>
@@ -138,12 +199,38 @@ export const AIChat: React.FC = () => {
       {isOpen && (
         <div
           ref={chatContainerRef}
-          className="fixed bottom-24 right-6 z-40 w-full max-w-sm bg-white rounded-lg shadow-xl border overflow-hidden"
+          className={`fixed ${isHomePage ? 'bottom-36 right-8' : 'bottom-24 right-6'} z-40 w-full max-w-sm bg-white rounded-lg 
+            ${isHomePage 
+              ? 'border border-[hsl(var(--chocolate-accent))] shadow-2xl shadow-[rgba(198,160,61,0.15)]' 
+              : 'border shadow-xl'
+            } 
+            overflow-hidden transition-all duration-500
+          `}
         >
           {/* Chat Header */}
-          <div className="bg-[hsl(var(--chocolate-dark))] text-white p-4 flex items-center justify-between">
-            <div className="flex items-center">
-              <div className="w-10 h-10 bg-[hsl(var(--chocolate-accent))] rounded-full flex items-center justify-center mr-3">
+          <div className={`
+            ${isHomePage 
+              ? 'bg-gradient-to-r from-[hsl(var(--chocolate-dark))] via-[hsl(var(--chocolate-medium))] to-[hsl(var(--chocolate-dark))]' 
+              : 'bg-[hsl(var(--chocolate-dark))]'
+            } 
+            text-white p-4 flex items-center justify-between relative overflow-hidden
+          `}>
+            {/* Background shine effect for home page */}
+            {isHomePage && (
+              <div className="absolute inset-0 opacity-30">
+                <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white to-transparent"></div>
+                <div className="absolute -left-[100%] top-0 bottom-0 w-[60%] rotate-[30deg] bg-gradient-to-r from-transparent via-white to-transparent animate-slide-right-slow"></div>
+              </div>
+            )}
+            
+            <div className="flex items-center relative z-10">
+              <div className={`
+                w-10 h-10 rounded-full flex items-center justify-center mr-3
+                ${isHomePage 
+                  ? 'bg-gradient-to-br from-[hsl(var(--chocolate-accent))] to-[hsl(var(--chocolate-light))] shadow-md shadow-[rgba(198,160,61,0.3)]' 
+                  : 'bg-[hsl(var(--chocolate-accent))]'
+                }
+              `}>
                 <Bot className="h-5 w-5 text-white" />
               </div>
               <div>
@@ -155,14 +242,14 @@ export const AIChat: React.FC = () => {
               variant="ghost"
               size="icon"
               onClick={toggleChat}
-              className="text-white hover:bg-[hsl(var(--chocolate-medium))]"
+              className="text-white hover:bg-[hsl(var(--chocolate-medium))] relative z-10"
             >
               <X className="h-5 w-5" />
             </Button>
           </div>
           
           {/* Chat Messages */}
-          <div className="h-80 overflow-y-auto p-4 bg-gray-50">
+          <div className={`h-80 overflow-y-auto p-4 ${isHomePage ? 'bg-gradient-to-b from-gray-50 to-white' : 'bg-gray-50'}`}>
             {/* Error Banner - smaller and less intrusive */}
             {apiError.show && (
               <div className={`mb-4 p-2 rounded-lg text-white ${apiError.isQuotaError ? 'bg-amber-600/70' : 'bg-red-500/70'}`}>
@@ -191,11 +278,17 @@ export const AIChat: React.FC = () => {
                   className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
                 >
                   <div
-                    className={`rounded-lg py-2 px-4 max-w-[85%] ${
-                      msg.role === "user"
-                        ? "bg-[hsl(var(--chocolate-medium))] text-white"
-                        : "bg-white border"
-                    }`}
+                    className={`
+                      rounded-lg py-2 px-4 max-w-[85%] 
+                      ${msg.role === "user"
+                        ? isHomePage
+                          ? "bg-gradient-to-r from-[hsl(var(--chocolate-dark))] to-[hsl(var(--chocolate-medium))] text-white shadow-md"
+                          : "bg-[hsl(var(--chocolate-medium))] text-white"
+                        : isHomePage
+                          ? "bg-white border border-gray-200 shadow-sm"
+                          : "bg-white border"
+                      }
+                    `}
                   >
                     <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
                     <p className="text-xs mt-1 opacity-70">
@@ -219,23 +312,38 @@ export const AIChat: React.FC = () => {
           </div>
           
           {/* Chat Input */}
-          <form onSubmit={handleSubmit} className="p-4 border-t">
-            <div className="flex">
+          <form onSubmit={handleSubmit} className={`p-4 border-t ${isHomePage ? 'bg-gray-50' : ''}`}>
+            <div className={`flex ${isHomePage ? 'shadow-sm rounded-md overflow-hidden' : ''}`}>
               <Input
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
-                placeholder="Ask about chocolates..."
-                className="flex-1 border-r-0 rounded-r-none focus-visible:ring-0 focus-visible:ring-offset-0"
+                placeholder={isHomePage ? "Ask our chocolate expert..." : "Ask about chocolates..."}
+                className={`
+                  flex-1 border-r-0 rounded-r-none focus-visible:ring-0 focus-visible:ring-offset-0
+                  ${isHomePage ? 'border-[hsl(var(--chocolate-accent))] border-opacity-30 focus:border-opacity-70' : ''}
+                `}
                 disabled={loading}
               />
               <Button
                 type="submit"
                 disabled={loading || !inputMessage.trim()}
-                className="bg-[hsl(var(--chocolate-accent))] hover:bg-opacity-90 text-white rounded-l-none"
+                className={`
+                  text-white rounded-l-none
+                  ${isHomePage 
+                    ? 'bg-gradient-to-r from-[hsl(var(--chocolate-accent))] to-[hsl(var(--chocolate-dark))] hover:opacity-95' 
+                    : 'bg-[hsl(var(--chocolate-accent))] hover:bg-opacity-90'
+                  }
+                `}
               >
                 <Send className="h-4 w-4" />
               </Button>
             </div>
+            
+            {isHomePage && (
+              <p className="text-xs text-center mt-2 text-gray-500 italic">
+                Powered by AI to answer all your chocolate questions
+              </p>
+            )}
           </form>
         </div>
       )}
