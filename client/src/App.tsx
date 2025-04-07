@@ -12,6 +12,7 @@ import ShopPage from "@/pages/ShopPage";
 import CollectionsPage from "@/pages/CollectionsPage";
 import AboutPage from "@/pages/AboutPage";
 import LearnPage from "@/pages/LearnPage";
+import OrderConfirmationPage from "@/pages/OrderConfirmationPage";
 import { PageTransition } from "@/components/PageTransition";
 import { AuthProvider } from "@/context/AuthContext";
 import { CartProvider } from "@/context/CartContext";
@@ -26,6 +27,7 @@ function Router() {
         <Route path="/" component={HomePage} />
         <Route path="/product/:id" component={ProductPage} />
         <Route path="/cart" component={CartPage} />
+        <Route path="/order-confirmation" component={OrderConfirmationPage} />
         <Route path="/auth/:type" component={AuthPage} />
         <Route path="/profile" component={ProfilePage} />
         <Route path="/profile/orders" component={ProfilePage} />

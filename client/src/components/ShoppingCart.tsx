@@ -1,6 +1,6 @@
 import React from "react";
-import { useCart } from "@/hooks/useCart";
-import { useAuth } from "@/hooks/useAuth";
+import { useCart } from "@/context/CartContext";
+import { useAuth } from "@/context/AuthContext";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -36,8 +36,9 @@ import {
 import { formatPrice } from "@/lib/types";
 
 export const ShoppingCart: React.FC = () => {
-  const { cartItems, cartSummary, loading, updateItemQuantity, removeItem } = useCart();
-  const { isAuthenticated } = useAuth();
+  const { cartItems, cartSummary, loading, updateQuantity, removeItem, clearCart } = useCart();
+  const { currentUser } = useAuth();
+  const isAuthenticated = !!currentUser;
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authType, setAuthType] = useState<'login' | 'signup'>('login');
   const [location, navigate] = useLocation();
@@ -45,7 +46,7 @@ export const ShoppingCart: React.FC = () => {
   const handleUpdateQuantity = (id: number, currentQuantity: number, change: number) => {
     const newQuantity = currentQuantity + change;
     if (newQuantity > 0) {
-      updateItemQuantity(id, newQuantity);
+      updateQuantity(id, newQuantity);
     }
   };
 
@@ -53,15 +54,23 @@ export const ShoppingCart: React.FC = () => {
     removeItem(id);
   };
 
-  const handleCheckout = () => {
+  const handleCheckout = async () => {
     if (!isAuthenticated) {
       setAuthType('login');
       setIsAuthModalOpen(true);
       return;
     }
     
-    // TODO: Implement checkout flow
-    alert("Checkout functionality will be implemented here");
+    try {
+      // In a real implementation, we would process the payment first
+      // For now, clear the cart and navigate to confirmation
+      await clearCart();
+      
+      // Navigate to confirmation page
+      navigate('/order-confirmation');
+    } catch (error) {
+      console.error('Error during checkout:', error);
+    }
   };
 
   return (
@@ -265,7 +274,7 @@ export const ShoppingCart: React.FC = () => {
                   className="w-full bg-[hsl(var(--chocolate-medium))] hover:bg-[hsl(var(--chocolate-dark))] text-white"
                   onClick={handleCheckout}
                 >
-                  Checkout
+                  Pay Now
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </CardFooter>
