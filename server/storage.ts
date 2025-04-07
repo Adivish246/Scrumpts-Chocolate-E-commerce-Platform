@@ -158,6 +158,14 @@ export class MemStorage implements IStorage {
     const product: Product = { 
       ...insertProduct, 
       id, 
+      rating: insertProduct.rating ?? null,
+      featured: insertProduct.featured ?? null,
+      bestseller: insertProduct.bestseller ?? null,
+      vegetarian: insertProduct.vegetarian ?? null,
+      discount: insertProduct.discount ?? null,
+      origin: insertProduct.origin ?? null,
+      allergies: insertProduct.allergies ?? null,
+      shelfLife: insertProduct.shelfLife ?? null,
       createdAt: now
     };
     this.productsData.set(id, product);
@@ -213,7 +221,7 @@ export class MemStorage implements IStorage {
     if (existingItem) {
       return this.updateCartItemQuantity(
         existingItem.id, 
-        existingItem.quantity + insertCartItem.quantity
+        existingItem.quantity + (insertCartItem.quantity || 1)
       ) as Promise<CartItem>;
     }
 
@@ -222,6 +230,7 @@ export class MemStorage implements IStorage {
     const cartItem: CartItem = { 
       ...insertCartItem, 
       id, 
+      quantity: insertCartItem.quantity || 1, // Default to 1 if quantity is undefined
       createdAt: now 
     };
     this.cartItemsData.set(id, cartItem);
@@ -263,6 +272,8 @@ export class MemStorage implements IStorage {
     const order: Order = { 
       ...insertOrder, 
       id, 
+      status: insertOrder.status || 'pending', // Set default status if not provided
+      paymentMethod: insertOrder.paymentMethod ?? null,
       createdAt: now 
     };
     this.ordersData.set(id, order);
@@ -287,7 +298,12 @@ export class MemStorage implements IStorage {
   async getOrdersByUserId(userId: string): Promise<Order[]> {
     return Array.from(this.ordersData.values())
       .filter(order => order.userId === userId)
-      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+      .sort((a, b) => {
+        // Handle potentially null createdAt values
+        const dateA = a.createdAt ? a.createdAt.getTime() : 0;
+        const dateB = b.createdAt ? b.createdAt.getTime() : 0;
+        return dateB - dateA;
+      });
   }
 
   async getOrderItems(orderId: number): Promise<OrderItem[]> {
