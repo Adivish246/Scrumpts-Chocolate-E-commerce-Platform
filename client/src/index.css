@@ -584,16 +584,52 @@
 @keyframes glowPulseEffect {
   0% {
     box-shadow: 0 0 5px rgba(239, 176, 83, 0.2);
-    filter: brightness(1);
+    filter: brightness(1) drop-shadow(0 0 3px rgba(239, 176, 83, 0.3));
+    transform: scale(1);
   }
   50% {
     box-shadow: 0 0 20px rgba(239, 176, 83, 0.4), 0 0 30px rgba(239, 176, 83, 0.2);
-    filter: brightness(1.1);
+    filter: brightness(1.1) drop-shadow(0 0 8px rgba(239, 176, 83, 0.6));
+    transform: scale(1.02);
   }
   100% {
     box-shadow: 0 0 5px rgba(239, 176, 83, 0.2);
-    filter: brightness(1);
+    filter: brightness(1) drop-shadow(0 0 3px rgba(239, 176, 83, 0.3));
+    transform: scale(1);
   }
+}
+
+/* Logo-specific shine effect */
+@keyframes logoShine {
+  0% {
+    background-position: -100% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.logo-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.logo-container::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 200%;
+  height: 100%;
+  background: linear-gradient(
+    90deg, 
+    transparent, 
+    rgba(255, 255, 255, 0.4), 
+    transparent
+  );
+  transform: skewX(-15deg);
+  background-size: 50% 100%;
+  animation: logoShine 3s ease-in-out infinite;
 }
 
 @keyframes floatEffect {
