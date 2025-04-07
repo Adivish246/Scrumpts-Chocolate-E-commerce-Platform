@@ -266,22 +266,58 @@ const ProfilePage: React.FC = () => {
             <div className="md:w-3/4">
               <Tabs defaultValue={getActiveTab()}>
                 <TabsList className="mb-6">
-                  <TabsTrigger value="preferences" onClick={() => window.history.pushState(null, "", "/profile")}>
+                  <TabsTrigger 
+                    value="preferences" 
+                    onClick={() => {
+                      const url = "/profile";
+                      if (location !== url) window.history.pushState(null, "", url);
+                    }}
+                  >
                     Chocolate Preferences
                   </TabsTrigger>
-                  <TabsTrigger value="account" onClick={() => window.history.pushState(null, "", "/profile")}>
+                  <TabsTrigger 
+                    value="account" 
+                    onClick={() => {
+                      const url = "/profile";
+                      if (location !== url) window.history.pushState(null, "", url);
+                    }}
+                  >
                     Account Details
                   </TabsTrigger>
-                  <TabsTrigger value="orders" onClick={() => window.history.pushState(null, "", "/profile/orders")}>
+                  <TabsTrigger 
+                    value="orders" 
+                    onClick={() => {
+                      const url = "/profile/orders";
+                      if (location !== url) window.history.pushState(null, "", url);
+                    }}
+                  >
                     Order History
                   </TabsTrigger>
-                  <TabsTrigger value="wishlist" onClick={() => window.history.pushState(null, "", "/profile/wishlist")}>
+                  <TabsTrigger 
+                    value="wishlist" 
+                    onClick={() => {
+                      const url = "/profile/wishlist";
+                      if (location !== url) window.history.pushState(null, "", url);
+                    }}
+                  >
                     Wishlist
                   </TabsTrigger>
-                  <TabsTrigger value="subscriptions" onClick={() => window.history.pushState(null, "", "/profile/subscriptions")}>
+                  <TabsTrigger 
+                    value="subscriptions" 
+                    onClick={() => {
+                      const url = "/profile/subscriptions";
+                      if (location !== url) window.history.pushState(null, "", url);
+                    }}
+                  >
                     Subscriptions
                   </TabsTrigger>
-                  <TabsTrigger value="settings" onClick={() => window.history.pushState(null, "", "/profile/settings")}>
+                  <TabsTrigger 
+                    value="settings" 
+                    onClick={() => {
+                      const url = "/profile/settings";
+                      if (location !== url) window.history.pushState(null, "", url);
+                    }}
+                  >
                     Settings
                   </TabsTrigger>
                 </TabsList>
@@ -536,11 +572,12 @@ const ProfilePage: React.FC = () => {
                         <p className="text-gray-500 mb-4">
                           Looks like you haven't placed any orders with us yet.
                         </p>
-                        <Link href="/shop">
-                          <Button className="bg-[hsl(var(--chocolate-medium))] hover:bg-[hsl(var(--chocolate-dark))]">
-                            Start Shopping
-                          </Button>
-                        </Link>
+                        <Button 
+                          className="bg-[hsl(var(--chocolate-medium))] hover:bg-[hsl(var(--chocolate-dark))]"
+                          onClick={() => window.location.href = '/shop'}
+                        >
+                          Start Shopping
+                        </Button>
                       </div>
                     </CardContent>
                   </Card>
@@ -559,11 +596,12 @@ const ProfilePage: React.FC = () => {
                         <p className="text-gray-500 mb-4">
                           Save your favorite chocolates for later by adding them to your wishlist.
                         </p>
-                        <Link href="/shop">
-                          <Button className="bg-[hsl(var(--chocolate-medium))] hover:bg-[hsl(var(--chocolate-dark))]">
-                            Explore Chocolates
-                          </Button>
-                        </Link>
+                        <Button 
+                          className="bg-[hsl(var(--chocolate-medium))] hover:bg-[hsl(var(--chocolate-dark))]"
+                          onClick={() => window.location.href = '/shop'}
+                        >
+                          Explore Chocolates
+                        </Button>
                       </div>
                     </CardContent>
                   </Card>
