@@ -432,10 +432,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
             errorCode = "quota_exceeded";
           }
           
-          // Fallback response if OpenAI fails
+          // Create a useful fallback response instead of only showing error
+          let responseContent = "I'm sorry, our AI service is temporarily unavailable due to high demand. ";
+          
+          // Provide a useful fallback response based on keywords in the user's message
+          const userMessage = messages[messages.length - 1]?.content?.toLowerCase() || "";
+          
+          if (userMessage.includes("chocolate")) {
+            if (userMessage.includes("dark")) {
+              responseContent += "While I can't provide personalized recommendations right now, our Dark Chocolate Truffles and Single-Origin Dark Chocolate bars are very popular choices. You can find them in our Shop section.";
+            } else if (userMessage.includes("milk")) {
+              responseContent += "While I can't provide personalized recommendations right now, our Milk Chocolate Collection and Caramel Milk Chocolate bars are customer favorites. You can explore them in our Shop section.";
+            } else if (userMessage.includes("white")) {
+              responseContent += "While I can't provide personalized recommendations right now, our White Chocolate with Raspberry and Vanilla White Chocolate bars are delicious options. You can browse them in our Shop section.";
+            } else if (userMessage.includes("nut") || userMessage.includes("hazelnut") || userMessage.includes("almond")) {
+              responseContent += "While I can't provide personalized recommendations right now, our Hazelnut Pralines and Almond Dark Chocolate bars are excellent choices for nut lovers. You can find them in our Shop section.";
+            } else {
+              responseContent += "While I can't provide personalized recommendations right now, please browse our Shop section where you'll find our complete selection of artisanal chocolates.";
+            }
+          } else if (userMessage.includes("gift") || userMessage.includes("present")) {
+            responseContent += "While I can't provide personalized recommendations right now, our Luxury Assortment and Seasonal Gift Boxes make wonderful presents. You can find them in our Collections section.";
+          } else if (userMessage.includes("order") || userMessage.includes("shipping") || userMessage.includes("delivery")) {
+            responseContent += "While I can't provide personalized assistance right now, you can find information about ordering, shipping, and delivery in our FAQ section.";
+          } else {
+            responseContent += "While I can't provide personalized assistance right now, please explore our Shop, Collections, and Learn sections to discover our artisanal chocolates.";
+          }
+          
+          responseContent += " Our AI assistant will be back online soon.";
+          
+          // Create fallback message with helpful content
           const fallbackMessage = {
             role: "assistant" as const,
-            content: errorMessage,
+            content: responseContent,
             timestamp: Date.now()
           };
           

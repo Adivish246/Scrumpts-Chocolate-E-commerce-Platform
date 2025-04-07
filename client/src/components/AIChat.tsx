@@ -163,22 +163,22 @@ export const AIChat: React.FC = () => {
           
           {/* Chat Messages */}
           <div className="h-80 overflow-y-auto p-4 bg-gray-50">
-            {/* Error Banner */}
+            {/* Error Banner - smaller and less intrusive */}
             {apiError.show && (
-              <div className={`mb-4 p-3 rounded-lg text-white ${apiError.isQuotaError ? 'bg-amber-600' : 'bg-red-500'}`}>
+              <div className={`mb-4 p-2 rounded-lg text-white ${apiError.isQuotaError ? 'bg-amber-600/70' : 'bg-red-500/70'}`}>
                 <div className="flex items-start">
-                  <AlertTriangle className="h-5 w-5 mr-2 flex-shrink-0 mt-0.5" />
+                  <AlertTriangle className="h-4 w-4 mr-2 flex-shrink-0 mt-0.5" />
                   <div>
-                    <p className="font-medium text-sm">{apiError.isQuotaError ? 'AI Service Limit Reached' : 'Service Unavailable'}</p>
-                    <p className="text-xs mt-1">{apiError.message}</p>
+                    <p className="font-medium text-xs">{apiError.isQuotaError ? 'AI Service Limit Reached' : 'Service Unavailable'}</p>
+                    <p className="text-xs opacity-90 mt-0.5">Using fallback responses for now</p>
                   </div>
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="ml-auto -mr-2 -mt-2 text-white hover:bg-white hover:bg-opacity-20"
+                    className="ml-auto -mr-2 -mt-1 text-white hover:bg-white hover:bg-opacity-20 h-6 w-6"
                     onClick={() => setApiError({...apiError, show: false})}
                   >
-                    <X className="h-4 w-4" />
+                    <X className="h-3 w-3" />
                   </Button>
                 </div>
               </div>
