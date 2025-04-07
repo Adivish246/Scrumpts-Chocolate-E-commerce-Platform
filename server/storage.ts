@@ -100,7 +100,13 @@ export class MemStorage implements IStorage {
 
   async createUser(insertUser: InsertUser): Promise<User> {
     const id = this.currentUserId++;
-    const user: User = { ...insertUser, id };
+    const user: User = { 
+      ...insertUser, 
+      id,
+      displayName: insertUser.displayName ?? null,
+      photoURL: insertUser.photoURL ?? null,
+      preferences: insertUser.preferences ?? null
+    };
     this.usersData.set(id, user);
     return user;
   }
@@ -500,9 +506,9 @@ export class DatabaseStorage implements IStorage {
     // Handle potentially undefined fields by setting them to null explicitly
     const userToInsert = {
       ...insertUser,
-      displayName: insertUser.displayName || null,
-      photoURL: insertUser.photoURL || null,
-      preferences: insertUser.preferences || null
+      displayName: insertUser.displayName ?? null,
+      photoURL: insertUser.photoURL ?? null,
+      preferences: insertUser.preferences ?? null
     };
     
     const [user] = await db.insert(users).values(userToInsert).returning();
@@ -519,17 +525,17 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getProducts(filter?: { category?: string; type?: string }): Promise<Product[]> {
-    let query = db.select().from(products);
+    let baseQuery = db.select().from(products);
     
     if (filter?.category) {
-      query = query.where(eq(products.category, filter.category));
+      baseQuery = baseQuery.where(eq(products.category, filter.category));
     }
     
     if (filter?.type) {
-      query = query.where(eq(products.type, filter.type));
+      baseQuery = baseQuery.where(eq(products.type, filter.type));
     }
     
-    return query;
+    return baseQuery;
   }
 
   async getProductById(id: number): Promise<Product | undefined> {

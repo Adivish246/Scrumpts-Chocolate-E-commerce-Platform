@@ -8,6 +8,10 @@ import ProductPage from "@/pages/ProductPage";
 import CartPage from "@/pages/CartPage";
 import AuthPage from "@/pages/AuthPage";
 import ProfilePage from "@/pages/ProfilePage";
+import ShopPage from "@/pages/ShopPage";
+import CollectionsPage from "@/pages/CollectionsPage";
+import AboutPage from "@/pages/AboutPage";
+import LearnPage from "@/pages/LearnPage";
 import { AuthProvider } from "@/context/AuthContext";
 import { CartProvider } from "@/context/CartContext";
 import { useEffect } from "react";
@@ -22,6 +26,10 @@ function Router() {
       <Route path="/cart" component={CartPage} />
       <Route path="/auth/:type" component={AuthPage} />
       <Route path="/profile" component={ProfilePage} />
+      <Route path="/shop" component={ShopPage} />
+      <Route path="/collections" component={CollectionsPage} />
+      <Route path="/about" component={AboutPage} />
+      <Route path="/learn" component={LearnPage} />
       <Route component={NotFound} />
     </Switch>
   );

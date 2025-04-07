@@ -93,35 +93,33 @@ export const Header: React.FC = () => {
             {/* Logo */}
             <div className="flex items-center">
               <Link href="/">
-                <a className="flex items-center">
-                  <span className="font-display text-2xl font-bold" style={{ color: 'hsl(var(--chocolate-dark))' }}>
-                    Scrumpts
-                  </span>
-                </a>
+                <span className="font-display text-2xl font-bold cursor-pointer" style={{ color: 'hsl(var(--chocolate-dark))' }}>
+                  Scrumpts
+                </span>
               </Link>
             </div>
             
             {/* Desktop Navigation */}
             <nav className="hidden md:flex space-x-8">
               <Link href="/shop">
-                <a className={`font-medium hover:text-amber-900 ${isShopPage ? 'text-amber-900' : 'text-amber-800'}`}>
+                <span className={`font-medium cursor-pointer hover:text-amber-900 ${isShopPage ? 'text-amber-900' : 'text-amber-800'}`}>
                   Shop
-                </a>
+                </span>
               </Link>
               <Link href="/collections">
-                <a className="font-medium text-amber-800 hover:text-amber-900">
+                <span className="font-medium cursor-pointer text-amber-800 hover:text-amber-900">
                   Collections
-                </a>
+                </span>
               </Link>
               <Link href="/about">
-                <a className="font-medium text-amber-800 hover:text-amber-900">
+                <span className="font-medium cursor-pointer text-amber-800 hover:text-amber-900">
                   About
-                </a>
+                </span>
               </Link>
               <Link href="/learn">
-                <a className="font-medium text-amber-800 hover:text-amber-900">
+                <span className="font-medium cursor-pointer text-amber-800 hover:text-amber-900">
                   Learn
-                </a>
+                </span>
               </Link>
             </nav>
             
@@ -216,24 +214,24 @@ export const Header: React.FC = () => {
             <div className="container mx-auto px-4">
               <nav className="flex flex-col space-y-4">
                 <Link href="/shop">
-                  <a className="font-medium text-amber-800 hover:text-amber-900 py-2">
+                  <span className="font-medium cursor-pointer text-amber-800 hover:text-amber-900 py-2 block">
                     Shop
-                  </a>
+                  </span>
                 </Link>
                 <Link href="/collections">
-                  <a className="font-medium text-amber-800 hover:text-amber-900 py-2">
+                  <span className="font-medium cursor-pointer text-amber-800 hover:text-amber-900 py-2 block">
                     Collections
-                  </a>
+                  </span>
                 </Link>
                 <Link href="/about">
-                  <a className="font-medium text-amber-800 hover:text-amber-900 py-2">
+                  <span className="font-medium cursor-pointer text-amber-800 hover:text-amber-900 py-2 block">
                     About
-                  </a>
+                  </span>
                 </Link>
                 <Link href="/learn">
-                  <a className="font-medium text-amber-800 hover:text-amber-900 py-2">
+                  <span className="font-medium cursor-pointer text-amber-800 hover:text-amber-900 py-2 block">
                     Learn
-                  </a>
+                  </span>
                 </Link>
                 
                 {!isAuthenticated && (
