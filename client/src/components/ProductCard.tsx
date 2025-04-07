@@ -6,7 +6,9 @@ import { useCart } from "@/hooks/useCart";
 import { formatPrice } from "@/lib/types";
 import { gsap } from "gsap";
 import { Badge } from "@/components/ui/badge";
-import { Heart, ShoppingBag, Star } from "lucide-react";
+import { Heart, ShoppingBag, Star, Award } from "lucide-react";
+import { motion } from "framer-motion";
+import { hoverCard } from "@/lib/animations";
 
 interface ProductCardProps {
   product: Product;
@@ -15,23 +17,31 @@ interface ProductCardProps {
 export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const { addItemToCart, isAddingToCart } = useCart();
   const cardRef = useRef<HTMLDivElement>(null);
+  const imageRef = useRef<HTMLImageElement>(null);
 
   // Format price
   const price = formatPrice(product.price);
 
-  // GSAP hover effect
+  // GSAP hover effect with enhanced glow
   useEffect(() => {
-    if (cardRef.current) {
+    if (cardRef.current && imageRef.current) {
       const card = cardRef.current;
+      const image = imageRef.current;
       
-      // Create hover animation timeline
+      // Create hover animation timeline with glow effect
       const tl = gsap.timeline({ paused: true });
       tl.to(card, {
-        y: -5,
-        boxShadow: "0 10px 25px -5px rgba(45, 30, 18, 0.1)",
-        duration: 0.3,
+        y: -8,
+        boxShadow: "0 15px 30px rgba(101, 67, 33, 0.15), 0 0 20px rgba(239, 176, 83, 0.15)",
+        duration: 0.4,
         ease: "power2.out"
       });
+      
+      tl.to(image, {
+        scale: 1.08,
+        duration: 0.7,
+        ease: "power2.out"
+      }, 0);
       
       // Add event listeners
       const handleMouseEnter = () => tl.play();
@@ -54,44 +64,78 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     addItemToCart(product.id);
   };
 
+  // Feature badge determination
+  const getFeatureBadge = () => {
+    if (product.bestseller) {
+      return {
+        text: "BESTSELLER",
+        color: "bg-gradient-to-r from-amber-500 to-yellow-500",
+        icon: <Award className="h-3 w-3 mr-1" />
+      };
+    } else if (product.featured) {
+      return {
+        text: "FEATURED",
+        color: "bg-gradient-to-r from-rose-500 to-pink-500",
+        icon: <Star className="h-3 w-3 mr-1" />
+      };
+    }
+    return null;
+  };
+
+  const badge = getFeatureBadge();
+
   return (
-    <div 
+    <motion.div 
       ref={cardRef}
-      className="product-card bg-white rounded-lg overflow-hidden shadow-md transition-all duration-300"
+      className="card-glow product-card bg-white rounded-lg overflow-hidden"
+      whileHover="hover"
+      whileTap="tap"
+      initial="initial"
+      variants={hoverCard}
     >
       <Link href={`/product/${product.id}`}>
-        <div className="relative h-64 overflow-hidden">
+        <div className="relative image-zoom-container h-64">
           <img 
+            ref={imageRef}
             src={product.imageUrl} 
             alt={product.name}
-            className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+            className="image-zoom w-full h-full object-cover"
           />
           <div className="absolute top-0 right-0 m-2">
             <Button 
               variant="ghost"
               size="icon"
-              className="bg-white hover:bg-gray-100 rounded-full shadow-sm"
+              className="bg-white/80 backdrop-blur-sm hover:bg-white rounded-full shadow-soft hover:shadow-glow transition-all duration-300"
             >
               <Heart className="h-5 w-5 text-[hsl(var(--chocolate-medium))]" />
+              <span className="sr-only">Add to wishlist</span>
             </Button>
           </div>
           
-          {/* Badges */}
-          {product.bestseller && (
-            <div className="absolute top-0 left-0 bg-[hsl(var(--chocolate-accent))] text-white text-xs font-bold px-3 py-1">
-              BESTSELLER
+          {/* Enhanced badges with glow */}
+          {badge && (
+            <div className={`premium-badge absolute top-0 left-0 m-2 flex items-center ${badge.color} text-white text-xs font-bold px-3 py-1 animate-glow-pulse`}>
+              {badge.icon}
+              {badge.text}
             </div>
           )}
+          
+          {/* Type badge */}
+          <div className="absolute bottom-0 right-0 m-2">
+            <span className="glass-effect text-xs font-medium px-2 py-1 rounded-full text-[hsl(var(--chocolate-dark))]">
+              {product.type}
+            </span>
+          </div>
         </div>
         
         <div className="p-4">
           <div className="flex justify-between items-start mb-2">
-            <h3 className="font-display text-lg font-semibold text-[hsl(var(--chocolate-dark))]">
+            <h3 className="font-display text-lg font-semibold text-[hsl(var(--chocolate-dark))] group-hover:text-glow-subtle">
               {product.name}
             </h3>
-            <div className="flex items-center">
+            <div className="flex items-center bg-[hsl(var(--muted))] px-2 py-1 rounded-full">
               <Star className="h-4 w-4 text-[hsl(var(--chocolate-accent))] fill-current" />
-              <span className="text-sm ml-1">{product.rating.toFixed(1)}</span>
+              <span className="text-sm ml-1 font-medium">{product.rating ? product.rating.toFixed(1) : '5.0'}</span>
             </div>
           </div>
           
@@ -100,12 +144,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           </p>
           
           <div className="flex justify-between items-center">
-            <span className="font-medium text-lg">
+            <span className="font-semibold text-lg text-[hsl(var(--chocolate-dark))]">
               {price.formatted}
             </span>
             <Button 
               onClick={handleAddToCart}
-              className="bg-[hsl(var(--chocolate-medium))] hover:bg-[hsl(var(--chocolate-dark))] text-white rounded-md px-3 py-1 text-sm font-medium transition duration-300"
+              className="btn-glow bg-[hsl(var(--chocolate-medium))] hover:bg-[hsl(var(--chocolate-dark))] text-white rounded-md px-3 py-1 text-sm font-medium transition-all duration-300 hover:shadow-glow"
               disabled={isAddingToCart[product.id]}
             >
               {isAddingToCart[product.id] ? (
@@ -116,13 +160,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
               ) : (
                 <>
                   <ShoppingBag className="h-4 w-4 mr-1" />
-                  Add
+                  <span>Add</span>
                 </>
               )}
             </Button>
           </div>
         </div>
       </Link>
-    </div>
+    </motion.div>
   );
 };
