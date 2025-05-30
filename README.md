@@ -85,11 +85,3 @@ npm run db:reseed      # Reseed data for testing
 * Refer to `NEON_SETUP.md` for detailed instructions on setting up the PostgreSQL database.
 * See `Scrumpts-Chocolate-E-commerce-Platform.pptx` for a presentation overview.
 * See `*.pdf` file for the detailed project report.
-
-## 📄 License
-
-This project is licensed under the [MIT License](LICENSE).
-
----
-
-Would you like me to generate a `LICENSE` file or `requirements.txt` equivalent (`package.json` already included)?
