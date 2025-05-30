@@ -1,7 +1,3 @@
-Here's a professional `README.md` for the GitHub repo:
-
----
-
 # 🍫 Scrumpts - Chocolate E-commerce Platform
 
 A full-stack chocolate e-commerce application built with modern web technologies including Vite, TypeScript, Tailwind CSS, Drizzle ORM, and Express.
